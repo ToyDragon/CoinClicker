@@ -13,6 +13,7 @@ import MojavePage from "./VirtualPages/Mojave";
 import CoalPage from "./VirtualPages/Coal";
 import DebugPage from "./VirtualPages/Debug";
 import DoorsPage from "./VirtualPages/Doors";
+import Utils from "../../Core/Utils";
 
 export default class Browser extends App<{}>{
     public prevtarget: string;
@@ -31,10 +32,14 @@ export default class Browser extends App<{}>{
             new AlphaWolfPage(),
             new MojavePage(),
             new CoalPage(),
-            new DoorsPage(),
-            new DebugPage(),
-            new NoPageFoundPage()
+            new DoorsPage()
         ];
+
+		if(Utils.DebugEnabled()){
+            this.availablePages.push(new DebugPage());
+        }
+
+        this.availablePages.push(new NoPageFoundPage());
     }
 
     public CleanUp(): void{
@@ -120,6 +125,7 @@ export default class Browser extends App<{}>{
             if(dest){
                 this.addressField.inputEle.val(dest);
                 this.GotoPage();
+                e.preventDefault();
             }
         });
     }

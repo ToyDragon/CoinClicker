@@ -5,6 +5,10 @@ export default class Utils{
 		return Number(str.replace(/[^0-9.-]/g,""));
 	}
 
+	public static DebugEnabled(): boolean{
+		return window.location.href.includes("debug");
+	}
+
 	public static GenerateName(){
 		let names = ["Billy","Jace","Weasel","Para","Cobbler","Taint","Lawson","Mario","Harbin","Sheriff","Addler","Donny","Alchemer","Froe","Dooloo","Fae","Sherman","Tank","Harry","Potter","Cake","Mupp","Yooley","Shade","Buddy","Cort","Deev","Mies","Penny"];
 		let name = names[Math.floor(Math.random() * names.length)];

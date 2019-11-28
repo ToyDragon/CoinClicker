@@ -1,7 +1,7 @@
 import VirtualPage from "./VirtualPage";
 import * as ReactDom from "react-dom";
 import * as React from "react";
-import { AssetLocation } from "../../../Core/Utils";
+import Utils, { AssetLocation } from "../../../Core/Utils";
 import { OS } from "../../../OS/OS";
 import { MojaveSharedDataKeys } from "./Mojave";
 
@@ -133,16 +133,16 @@ export default class HomePage extends VirtualPage{
                 subtitle: "Minigames",
                 title: "Coal"
             });
-        }else{
-            console.log("No ACN miner 0 :( " + OS.getSharedData<MojaveSharedDataKeys>("hasACNMiner0"));
         }
         
-        data.push({
-            destination: "webos.gov",
-            iconClass: "cactus",
-            subtitle: "Debug tools for development",
-            title: "Debug"
-        });
+        if(Utils.DebugEnabled()){
+            data.push({
+                destination: "webos.gov",
+                iconClass: "cactus",
+                subtitle: "Debug tools for development",
+                title: "Debug"
+            });
+        }
 
         return data;
     }

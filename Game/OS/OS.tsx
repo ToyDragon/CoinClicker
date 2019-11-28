@@ -247,22 +247,24 @@ export class OS{
 			app: OS.PickaxeApp
 		});
 
-		let debugFolder = new Folder({
-			title: "Debug",
-			canRename: true
-		});
-		OS.RootFolder.AddItem(debugFolder.item);
+		if(Utils.DebugEnabled()){	
+			let debugFolder = new Folder({
+				title: "Debug",
+				canRename: true
+			});
+			OS.RootFolder.AddItem(debugFolder.item);
 
-		debugFolder.AddItem(new FolderItem({
-			title: "100 ACN",
-			icon: AllIcons.Frog,
-			app: OS.MakeDebugApp(() => {Wallet.AnimatedAdd("ACN",100,100,100)})
-		}));
-		debugFolder.AddItem(new FolderItem({
-			title: "10000 CSH",
-			icon: AllIcons.Frog,
-			app: OS.MakeDebugApp(() => {Wallet.AnimatedAdd("CSH",10000,10000,100)})
-		}));
+			debugFolder.AddItem(new FolderItem({
+				title: "100 ACN",
+				icon: AllIcons.Frog,
+				app: OS.MakeDebugApp(() => {Wallet.AnimatedAdd("ACN",100,100,100)})
+			}));
+			debugFolder.AddItem(new FolderItem({
+				title: "10000 CSH",
+				icon: AllIcons.Frog,
+				app: OS.MakeDebugApp(() => {Wallet.AnimatedAdd("CSH",10000,10000,100)})
+			}));
+		}
 
 		OS.ClockTimer = setInterval(OS.UpdateClock, 1000);
 		OS.UpdateClock();

@@ -140,10 +140,12 @@ export default class Exchange extends App<Events>{
         if(this.windowObj){
             this.UpdateCanvas();
         }
-        if(!this.tradeTab.current.getAutoSellEnabled()){
-            this.CheckOrders();
-        }else{
-            this.AutoSell();
+        if(this.tradeTab.current){
+            if(!this.tradeTab.current.getAutoSellEnabled()){
+                this.CheckOrders();
+            }else{
+                this.AutoSell();
+            }
         }
         Exchange.LastTick = new Date().getTime();
     }
