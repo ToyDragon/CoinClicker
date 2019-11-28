@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "jsx": "react",
+    "typeRoots": [
+      "../node_modules/@types"
+    ]
+  }
+}

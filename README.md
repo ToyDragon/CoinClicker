@@ -1,1 +1,1 @@
-# CoinClicker
+# Coin Clicker

@@ -1,0 +1,830 @@
+/* contextmenu.css */
+.contextMenu{
+	position: absolute;
+	background-color: #bfbfbf;
+	width: 175px;
+	z-index: 10000;
+}
+
+.contextMenu > .item{
+	font-size: 18px;
+	padding-left: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+
+.contextMenu > .item > .icon{
+	margin-right: 5px;
+}
+
+.contextMenu > .item:hover{
+	background-image: url("/Assets/grid-blue-sm.png");
+}
+
+.contextMenu > .item.divider{
+	height: 0;
+	min-height: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+/* core.css */
+html, body{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
+	overflow: hidden;
+}
+
+#taskbar .item.money{
+	margin-right: 0;
+}
+
+#taskbar .item.toasts{
+	position: absolute;
+	right: 0;
+	bottom: 60px;
+	background: transparent;
+	overflow: visible;
+	transform: rotate(180deg);
+
+	> .toast{
+		padding: 10px;
+		background-color: #bfbfbf;
+		transform: rotate(180deg);
+		margin: 5px;
+	}
+}
+
+.borderGroove{
+	border-left: 2px solid white;
+	border-top: 2px solid white;
+	border-right: 2px solid #818180;
+	border-bottom: 2px solid #818180;
+}
+
+.borderRidge{
+	border-left: 2px solid #818180;
+	border-top: 2px solid #818180;
+	border-right: 2px solid white;
+	border-bottom: 2px solid white;
+}
+
+.icon{
+	display: inline-block;
+	background-repeat: no-repeat;
+}
+
+.icon.backpack{
+	background-image: url("/Assets/bag-sm.png");
+	min-width: 30px;
+	min-height: 34px;
+}
+
+.icon.potion{
+	background-image: url("/Assets/potion-sm.png");
+	min-width: 20px;
+	min-height: 26px;
+}
+
+.gridBlack:hover{
+	background-image: url("/Assets/grid-black-sm.png");
+}
+
+#absoluteObjects{
+	position:absolute;
+	width: 0;
+	height: 0;
+}
+
+.minerLabel{
+	width: 100%;
+	font-size: 24px;
+	font-weight: bold;
+}
+
+/* exchange.css */
+.buySellSection{
+	display: inline-block;
+	width: 168px;
+	vertical-align: top;
+	&:nth-of-type(2){
+		margin-left: 10px;
+	}
+}
+
+.exchangeWindow{
+	background-color: #eef0f0;
+}
+
+.exchangeBottom{
+	height: 144px;
+	border-top: 2px solid #bfbfbf;
+	background-color: #353f40;
+}
+
+.rateSections{
+	padding: 10px;
+	width: 131px;
+	display: inline-block;
+
+	.rateDisplay{
+		font-size: 24px;
+		color: white;
+		&.inital{
+			font-size: 18px;
+		}
+	}
+
+	.rateLabel{
+		color: gray;
+	}
+	
+	.smallRateSection{
+		padding-top: 5px;
+		font-size: 12px;
+		width: 50%;
+		display: inline-block;
+		
+		.rateDisplay{
+			font-size: 12px;
+		}
+	}
+}
+
+.tabSection{
+	width: calc(100% - 153px);
+	height: 100%;
+	display: inline-block;
+	border-left: 2px solid #bfbfbf;
+	vertical-align: top;
+}
+
+.tabContent{
+	height: 118px;
+	position: relative;
+}
+
+.tabstrip{
+	width: 100%;
+	border-bottom: 2px solid #bfbfbf;
+	> .tab{
+		display: inline-block;
+		color: white;
+		margin-left: 4px;
+		background-color: #555555;
+		padding: 5px 10px 0 10px;
+		clip-path: polygon(0 100%, 100% 100%, 90% 25%, 70% 0, 30% 0, 10% 25%);
+
+		&.active{
+			background-color: gray;
+		}
+	}
+}
+
+/* folder.css */
+.folderRoot{
+    width: 0;
+    height: 100%;
+	padding: 20px 0 0 10px;
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.folderRoot > .item{
+	width: 96px;
+	height: 75px;
+}
+
+.folderRoot > .item > .icon{
+	display: block;
+	margin: auto;
+	width: 42px;
+}
+
+.folderRoot > .item .titleContainer{
+	display: table;
+	width: 96px;
+}
+
+.folderRoot .item .title{
+    user-select: none;
+}
+
+.folderRoot > .item:hover .titleContainer .titleElement .title{
+	background-color: lightgray;
+}
+
+/* musicplayer.css */
+.audioActions{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+.leftPane{
+	width: 300px;
+	display: inline-block;
+}
+.rightPane{
+	width: 40px;
+	display: inline-block;
+}
+
+.rightPane > .ui-slider{
+	height: 215px;
+	margin: 15px;
+}
+
+.musicPlayer > .item > .title{
+	top: -3px;
+}
+
+/* os.css */
+#main{
+	width: 100%;
+	height: 100%;
+	display: grid;
+	grid-template-columns: 100%;
+	grid-template-rows: auto 2px 62px;
+}
+
+#desktop{
+	grid-column: 1;
+	grid-row: 1;
+	background-color: #AFBFC0;
+	position: relative;
+	width: 100%;
+}
+
+.desktopItems{
+	position: relative;
+}
+
+.titleContainer .titleElement{
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+}
+
+#tbDivider{
+	grid-column: 1;
+	grid-row: 2;
+	background-color: white;
+}
+
+.logo{
+	background-image: url("/Assets/Frog256.png");
+	position: absolute;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* routineeditor.css */
+.tagContainer{
+    display:  inline-block;
+}
+
+.tagDisplay{
+    display: inline-block;
+    overflow: hidden;
+    width: 50px;
+    height: 60px;
+    position: relative;
+    left: 10px;
+    top: 17px;
+
+    background-repeat: no-repeat;
+    background-image: url("/Assets/icons/tag32.png");
+}
+
+.tagDisplay:hover{
+    background-image: url("/Assets/icons/tag32light.png");
+}
+
+.tagDisplay.noTag{
+    background-image: none;
+}
+
+.tagDisplay.noTag:hover{
+    background-image: url("/Assets/icons/tag32light.png");
+}
+
+.extrasSection{
+    display: inline-block;
+    height: 500px;
+    width: 210px;
+    position: absolute;
+}
+
+.extrasSection .variableSection{
+    height: 275px;
+}
+
+.actionSection{
+    width: 750px;
+    height: 500px;
+    display: inline-block;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.actionContainer{
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    padding-left: 5px;
+    width: 673px;
+    height: 63px;
+}
+
+.paramContainer{
+    display: inline-block;
+}
+
+.currentLine > .actionContainer{
+    background-color: #c9e5cf;
+}
+
+.currentLineWaiting > .actionContainer{
+    background-color: #ffe5cf;
+}
+
+.consoleOutput{
+    height: 165px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    white-space: nowrap;
+}
+
+/* taskbar.css */
+#taskbar{
+	grid-column: 1;
+	grid-row: 3;
+	background-color: #bfbfbf;
+	padding: 4px;
+	display: flex;
+	flex-direction: row;
+}
+
+.item{
+	cursor: pointer;
+}
+
+.itemGroup{
+	flex-grow: 1;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+#taskbar .item{
+	display: inline-block;
+	background-color: #bfbfbf;
+	height: 40px;
+	min-width: 40px;
+	margin-right: 8px;
+	line-height: 48px;
+	font-size: 24px;
+	padding: 4px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+#taskbar .item > .icon{
+	margin: 3px;
+}
+
+#taskbar .item.divider{
+	width: 0;
+	min-width: 0;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+#taskbar > .item{
+	flex-shrink: 0;
+}
+
+.item > .title{
+	display: inline-block;
+	position: relative;
+	top: -9px;
+	user-select: none;
+}
+
+.item.clock > .title{
+	top: 0;
+}
+
+.end{
+	display: inline-block;
+	position:absolute;
+	right: 0;
+}
+
+.appButtons .item:hover, .appButtons .item.highlight:hover, #menu:hover{
+	background-image: url("/Assets/grid-blue-sm.png");
+}
+
+.appButtons .item.highlight{
+	background-image: url("/Assets/grid-white-sm.png");
+}
+
+/* wallet.css */
+.wallet .mainIcon {
+	display: inline-block;
+	position: relative;
+    top: 3px;
+    left: 3px;
+}
+
+.wallet .symbol, .wallet .value{
+	font-size: 24px;
+	display: inline-block;
+	margin-left: 6px;
+	position: relative;
+	top: -4px;
+}
+
+.wallet{
+	margin: 3px;
+	padding: 3px;
+	border: 1px solid #818180;
+}
+
+.minerLabel{
+	text-align: center;
+}
+
+#taskbar .item.money:hover{
+	background-image: url("/Assets/grid-blue-sm.png");
+}
+
+#taskbar .item.money .icon{
+	margin: 3px;
+}
+
+#taskbar .item.layout:hover{
+	background-image: url("/Assets/grid-blue-sm.png");
+}
+
+#taskbar .item.layout .icon{
+	margin: 3px;
+}
+
+.moneyDoodad{
+	color: white;
+	text-shadow:	black  1px  1px,
+					black -1px  1px,
+					black  1px -1px,
+					black -1px -1px;
+}
+
+/* widgets.css */
+.slider{
+	height: 37px;
+    position: relative;
+    margin: 4px;
+	width: 158px;
+	
+	.bar{
+		width: 7px;
+		height: 16px;
+		position: absolute;
+		background-color: #bfbfbf;
+		z-index: 1;
+	}
+
+	.valueDisplay{
+		color: white;
+		bottom: 0;
+		right: 0;
+		position: absolute;
+
+		.labelDisplay{
+			color: gray;
+			font-size: 12px;
+		}
+
+		.error{
+			color: red;
+		}
+	}
+
+	.horizontalbar{
+		width: 100%;
+		border-top: 2px solid #bfbfbf;
+		top: 10px;
+		position: absolute;
+	}
+}
+.orderSection{
+	display: inline-block;
+	min-height: 10px;
+	width: 168px;
+	position: absolute;
+
+	&:nth-of-type(2n){
+		left: 168px;
+	}
+
+	&.orderSummary{
+		padding: 8px;
+		color: white;
+	}
+}
+
+.widgetButton .title{
+	margin: -2px -3px 0 -3px;
+}
+
+.selectionList > .item:hover{
+	background-image: url("/Assets/grid-blue-sm.png");
+}
+
+.selectionList > .selected{
+	background-image: url("/Assets/grid-white-sm.png");
+}
+
+.selectionList > .item{
+	padding-top: 5px;
+	padding-left: 5px;
+}
+
+.selectionList > .item > .title{
+	padding-left: 5px;
+}
+
+.selectionList{
+	width: 200px;
+	overflow-y: scroll;
+	margin: 5px;
+	background-color: #bfbfbf;
+}
+
+div.button{
+	display: inline-block;
+	padding-top: 4px;
+	padding-left: 4px;
+	padding-right: 4px;
+	margin: 4px;
+}
+
+.button:hover{
+	background-image: url("/Assets/grid-blue-sm.png");
+}
+
+.button.disabled, .button.disabled:hover{
+	background-image: url("/Assets/grid-black-sm.png");
+}
+
+.optionSelect{
+	height: 22px;
+	margin: 3px;
+	position: relative;
+}
+
+.optionSelect > .title{
+	display: inline-block;
+    margin-right: 18px;
+}
+
+.optionSelect > .itemIcon{
+	margin-left: 4px;
+	position: relative;
+    top: 2px;
+}
+
+.optionSelect > .divotIcon{
+	position: absolute;
+    right: 1px;
+    top: 2px;
+}
+
+.loadingBar{
+	height: 30px;
+    margin: 10px;
+    background-color: white;
+	display: flex;
+    justify-content: space-evenly;
+	position: relative;
+	overflow: hidden;
+}
+
+.loadingBar .spar{
+	border-left: 2px solid #bfbfbf;
+	height: 30px;
+	width: 1px;
+    position: relative;
+}
+
+.loadingBar .blueBar{
+	background-color: blue;
+	height: 30px;
+	width: 100%;
+    position: absolute;
+}
+
+.numberDisplay{
+	display: inline-block;
+	font-weight: bold;
+    font-size: 24px;
+}
+
+.textInput{
+	padding-right: 4px;
+	display: inline-block;
+	height: 32px;
+	position: relative;
+	
+	input{
+		width: 100%;
+		background-color: transparent;
+		font-family: serif;
+		font-size: 22px;
+		font-weight: bold;
+
+		&[disabled]{
+			background-color: lightgray;
+		}
+	}
+
+	.inputLabel{
+		position: absolute;
+		top: 5px;
+		color: gray;
+		right: 4px;
+		font-size: 10px;
+
+		&.right{
+			right: unset;
+			left: 4px;
+		}
+	}
+}
+
+.label{
+	display: inline-block;
+	font-size: 22px;
+}
+
+/* window.css */
+.nodisp{
+	display: none !important;
+}
+
+.windowContainer{
+	position: absolute;
+}
+
+.window{
+	background-color: #bfbfbf;
+}
+
+.window .content{
+	position: relative;
+	user-select: none;
+}
+
+.windowContainer .window .content{
+	top: -2px;
+	left: 3px;
+}
+
+.windowContainer.large{
+	top: 150px;
+	left: 650px;
+}
+
+.dragIndicator{
+	position: absolute;
+    right: 5px;
+    bottom: 4px;
+    width: 12px;
+    height: 12px;
+	cursor: se-resize;
+    background-color: #bfbfbf;
+    border-top-left-radius: 13px;
+    border-top: 2px solid white;
+    border-left: 2px solid white;
+}
+
+.dragLine{
+    border-left: 1px solid #818180;
+    border-top: 1px solid #818180;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+
+.dragLine:nth-of-type(2){
+    border-top-left-radius: 9px;
+    width: 9px;
+    height: 9px;
+}
+
+.dragLine:nth-of-type(3){
+    border-top-left-radius: 9px;
+    width: 6px;
+    height: 6px;
+}
+
+.dragLine:nth-of-type(4){
+    border-top-left-radius: 9px;
+    width: 3px;
+    height: 3px;
+}
+
+.titlebar{
+	background-color: #86898E;
+	padding: 1px;
+	padding-right: 5px;
+	padding-left: 5px;
+	line-height: 28px;
+	margin: 3px;
+	font-size: 20px;
+	height: 28px;
+	cursor: move;
+}
+
+.windowContainer.active .titlebar{
+	background-color: #0000AA;
+	color: #ffffff;
+}
+
+.titlebar > .icon{
+	display: inline-block;
+}
+
+.titlebar > .title{
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 4px;
+	user-select: none;
+}
+
+.titlebar .end{
+	margin-right: 8px;
+	top: 4px;
+}
+
+.titlebar .action{
+	color: black;
+	display: inline-block;
+	margin-left: 4px;
+	width: 20px;
+	height: 20px;
+	line-height: 16px;
+	background-color: #bfbfbf;
+	cursor: pointer;
+	user-select: none;
+}
+
+.titlebar .action.minimize .title{
+	position: relative;
+	left: 4px;
+	top: -3px;
+	font-weight: bold;
+}
+
+.titlebar .action.close .title{
+	position: relative;
+	left: 3px;
+	top: 2px;
+}
+
+/* webbrowser */
+
+.browserNavBar{
+	display: flex;
+	padding-top: 5px;
+	padding-left: 5px;
+}
+
+.browserContent{
+	height: calc(100% - 41px);
+}
+            
+.pageRoot{
+	padding-left: 15px;
+	padding-right: 15px;
+	height: calc(100% - 5px);
+	margin-top: 5px;
+}
+
+.pinballOverlay{
+	position: absolute;
+	top: 0;
+}
+
+.pinballCanvas{
+	position: relative;
+}
