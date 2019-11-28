@@ -18,7 +18,7 @@
 }
 
 .contextMenu > .item:hover{
-	background-image: url("/Assets/grid-blue-sm.png");
+	background-image: url("../../Assets/grid-blue-sm.png");
 }
 
 .contextMenu > .item.divider{
@@ -78,19 +78,19 @@ html, body{
 }
 
 .icon.backpack{
-	background-image: url("/Assets/bag-sm.png");
+	background-image: url("../../Assets/bag-sm.png");
 	min-width: 30px;
 	min-height: 34px;
 }
 
 .icon.potion{
-	background-image: url("/Assets/potion-sm.png");
+	background-image: url("../../Assets/potion-sm.png");
 	min-width: 20px;
 	min-height: 26px;
 }
 
 .gridBlack:hover{
-	background-image: url("/Assets/grid-black-sm.png");
+	background-image: url("../../Assets/grid-black-sm.png");
 }
 
 #absoluteObjects{
@@ -278,7 +278,7 @@ html, body{
 }
 
 .logo{
-	background-image: url("/Assets/Frog256.png");
+	background-image: url("../../Assets/Frog256.png");
 	position: absolute;
     width: 100%;
     height: 100%;
@@ -301,11 +301,11 @@ html, body{
     top: 17px;
 
     background-repeat: no-repeat;
-    background-image: url("/Assets/icons/tag32.png");
+    background-image: url("../../Assets/icons/tag32.png");
 }
 
 .tagDisplay:hover{
-    background-image: url("/Assets/icons/tag32light.png");
+    background-image: url("../../Assets/icons/tag32light.png");
 }
 
 .tagDisplay.noTag{
@@ -313,7 +313,7 @@ html, body{
 }
 
 .tagDisplay.noTag:hover{
-    background-image: url("/Assets/icons/tag32light.png");
+    background-image: url("../../Assets/icons/tag32light.png");
 }
 
 .extrasSection{
@@ -431,11 +431,11 @@ html, body{
 }
 
 .appButtons .item:hover, .appButtons .item.highlight:hover, #menu:hover{
-	background-image: url("/Assets/grid-blue-sm.png");
+	background-image: url("../../Assets/grid-blue-sm.png");
 }
 
 .appButtons .item.highlight{
-	background-image: url("/Assets/grid-white-sm.png");
+	background-image: url("../../Assets/grid-white-sm.png");
 }
 
 /* wallet.css */
@@ -465,7 +465,7 @@ html, body{
 }
 
 #taskbar .item.money:hover{
-	background-image: url("/Assets/grid-blue-sm.png");
+	background-image: url("../../Assets/grid-blue-sm.png");
 }
 
 #taskbar .item.money .icon{
@@ -473,7 +473,7 @@ html, body{
 }
 
 #taskbar .item.layout:hover{
-	background-image: url("/Assets/grid-blue-sm.png");
+	background-image: url("../../Assets/grid-blue-sm.png");
 }
 
 #taskbar .item.layout .icon{
@@ -547,11 +547,11 @@ html, body{
 }
 
 .selectionList > .item:hover{
-	background-image: url("/Assets/grid-blue-sm.png");
+	background-image: url("../../Assets/grid-blue-sm.png");
 }
 
 .selectionList > .selected{
-	background-image: url("/Assets/grid-white-sm.png");
+	background-image: url("../../Assets/grid-white-sm.png");
 }
 
 .selectionList > .item{
@@ -579,11 +579,11 @@ div.button{
 }
 
 .button:hover{
-	background-image: url("/Assets/grid-blue-sm.png");
+	background-image: url("../../Assets/grid-blue-sm.png");
 }
 
 .button.disabled, .button.disabled:hover{
-	background-image: url("/Assets/grid-black-sm.png");
+	background-image: url("../../Assets/grid-black-sm.png");
 }
 
 .optionSelect{
