@@ -1,4 +1,4 @@
-export let AssetLocation = "/Assets/";
+export let AssetLocation = "Assets/";
 
 export default class Utils{
 	public static TrimUnit(str: string): number{

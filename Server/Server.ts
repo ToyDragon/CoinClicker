@@ -7,7 +7,7 @@ app.use(compression());
 
 
 //Kind of silly to expose everything in the repo, but this is to mimic Github pages.
-app.use(express.static(__dirname + "/.."));
+app.use("/CoinClicker", express.static(__dirname + "/.."));
 
 /*
 app.use(express.static(__dirname + "/../bin/game"));
