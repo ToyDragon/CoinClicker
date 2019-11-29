@@ -10,6 +10,7 @@ import IconWidget from "../../OS/Widgets/Icon";
 import { OS } from "../../OS/OS";
 import { Wallet } from "../Crypto/Wallet";
 import { MojaveSharedDataKeys } from "../Browser/VirtualPages/Mojave";
+import { CoalSharedDataKeys } from "../Browser/VirtualPages/Coal";
 
 interface Sender{
     name: string;
@@ -192,6 +193,48 @@ export class EmailApp extends App<{}>{
         OS.on<MojaveSharedDataKeys>("hasACNBuyOrders", () => {
             if(!this.hasEmail[emailOrders.subject]){
                 this.AddEmail(emailOrders);
+            }
+        });
+
+        const emailDoug = {
+            sender: EmailApp.SenderITHelper,
+            subject: "Doug",
+            content: (
+                <div>
+                    Doug is a game about mining resources, and selling them for profit! Control Doug
+                    with WASD or the arrow keys. Mining dirt and ore costs energy (NRG), and Doug can
+                    only carry so many ores in his inventory (INV). Take trips underground collecting
+                    resources and bring them back to the shop above ground. Purchase upgrades so you
+                    can dig deeper and carry more. Every 100 blocks or so is a green plutonium ore that
+                    will permanently increase the base block size of your miners by +0.1, up to a
+                    maximum of +2 at 20 plutonium.
+                </div>
+            )
+        };
+
+        OS.on<CoalSharedDataKeys>("hasDigger", () => {
+            if(!this.hasEmail[emailDoug.subject]){
+                this.AddEmail(emailDoug);
+            }
+        });
+
+        const emailSnake = {
+            sender: EmailApp.SenderITHelper,
+            subject: "Snake",
+            content: (
+                <div>
+                    Snake is a retro ASCII game where you try to eat as many apples as you can without
+                    crashing into your own tail. Control the snake with WASD or the arrow keys. While
+                    your snake is alive your miners will recieve a 25% mining speed bonus, and your
+                    high score will permanently add bonus coins to every mined block! The max is 2 ACN
+                    added to the base size of every block at a high score of 40 apples.
+                </div>
+            )
+        };
+
+        OS.on<CoalSharedDataKeys>("hasSnake", () => {
+            if(!this.hasEmail[emailSnake.subject]){
+                this.AddEmail(emailSnake);
             }
         });
 
