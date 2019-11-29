@@ -880,11 +880,11 @@ class DiggerShop extends App<{}>{
             }
             
             if(a.energy && a.inventory){
-                a.tooltip = "+" + a.energy + " and +" + a.inventory;
+                a.tooltip = "+" + a.energy + " energy and +" + a.inventory + " inventory";
             } else if(a.energy){
-                a.tooltip = "+" + a.energy;
+                a.tooltip = "+" + a.energy + " energy";
             } else if(a.inventory){
-                a.tooltip = "+" + a.inventory;
+                a.tooltip = "+" + a.inventory + " inventory";
             }
 
             return a as ShopItem;
@@ -933,18 +933,6 @@ class DiggerShop extends App<{}>{
                 <div style={thirdWidth}>
                     <div>
                         <div style={center}>
-                            <LabelWidget title="Money" />
-                        </div>
-                    </div>
-                    <div>
-                        <div style={center}>
-                            <div style={blue}><LabelWidget ref={moneyLabelRef} tooltip="Money" color="cyan" title={Utils.DisplayNumber(DiggerGame.player.money)} /></div>
-                        </div>
-                    </div>
-                </div>
-                <div style={thirdWidth}>
-                    <div>
-                        <div style={center}>
                             <LabelWidget title="Energy" />
                         </div>
                     </div>
@@ -963,6 +951,18 @@ class DiggerShop extends App<{}>{
                     <div>
                         <div style={center}>
                             <div style={green}><LabelWidget ref={inventoryLabelRef} tooltip="Inventory" color="lightgreen" title={Utils.DisplayNumber(DiggerGame.player.maxInventory)} /></div>
+                        </div>
+                    </div>
+                </div>
+                <div style={thirdWidth}>
+                    <div>
+                        <div style={center}>
+                            <LabelWidget title="Money" />
+                        </div>
+                    </div>
+                    <div>
+                        <div style={center}>
+                            <div style={blue}><LabelWidget ref={moneyLabelRef} tooltip="Money" color="cyan" title={Utils.DisplayNumber(DiggerGame.player.money)} /></div>
                         </div>
                     </div>
                 </div>
