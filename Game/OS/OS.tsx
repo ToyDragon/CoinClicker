@@ -10,6 +10,7 @@ import WebosWindow from "./Window";
 import ContextMenu from "./ContextMenu";
 import Taskbar from "./Taskbar";
 import { EmailApp } from "../Apps/General/Email";
+import { AboutApp } from "../Apps/General/About";
 import App from "../Apps/App"
 
 /* Base class for all shared data keys just to help restrict the intellisense */
@@ -24,6 +25,7 @@ export class OS{
 	public static BrowserApp: Browser;
 	public static EmailApp: EmailApp;
 	public static PickaxeApp: Pickaxe;
+	public static AboutApp: AboutApp;
 
 	private static SharedData: {[value: string]: any} = {};
 	public static SharedDataEventHandlers: {[key: string]: Function[]} = {};
@@ -72,11 +74,11 @@ export class OS{
 		// 	});
 		// });
 
-		Wallet.AnimatedAdd("ACN", 4, 2, 200).then(() => {
-			Wallet.AnimatedAdd("ACN", 6, 1, 600);
-		});
-
 		OS.WalletApp.ActivateOrCreate();
+		OS.EmailApp.ActivateOrCreate();
+		// Wallet.AnimatedAdd("ACN", 4, 2, 200).then(() => {
+		// 	Wallet.AnimatedAdd("ACN", 6, 1, 600);
+		// });
 	}
 
 	public static MakeToast(text: string): void{
@@ -106,10 +108,13 @@ export class OS{
 				</div>
 				<div className="itemGroup appButtons">
 				</div>
-				<div className="item layout">
+				<div className="item email compact">
 					<div className="icon"></div>
 				</div>
-				<div className="item money">
+				<div className="item layout compact">
+					<div className="icon"></div>
+				</div>
+				<div className="item money compact">
 					<div className="icon"></div>
 				</div>
 				<div className="divider item borderGroove">
@@ -302,6 +307,9 @@ export class OS{
 
 			e.preventDefault();
 		});
+
+		OS.AboutApp = new AboutApp();
+
 		$("#menu").on("mousedown", (e) => {
 			ContextMenu.CloseAllContextMenus();
 			var x = e.pageX;
@@ -321,6 +329,11 @@ export class OS{
 				icon: AllIcons.Browser,
 				app: OS.BrowserApp
 			},
+			{
+				title: "About",
+				icon: AllIcons.Frog,
+				app: OS.AboutApp
+			}
 			/*{
 				divider: true
 			}

@@ -12,7 +12,7 @@ app.get("/", (_req, res) => {
     res.redirect("/CoinClicker/");
 });
 
-let port = 80;
+let port = 8080;
 app.listen(port, () => {
     console.log("Listening on port " + port);
 })

@@ -2,11 +2,14 @@ import * as ReactDom from "react-dom";
 import * as React from "react";
 import App from "../App";
 import Utils, { AssetLocation } from "../../Core/Utils"
-import { IconDescriptor, AllIcons } from "../../Core/Icons";
+import { IconDescriptor, AllIcons, IconDetails } from "../../Core/Icons";
 import Observable from "../../Core/Observable";
 import WebosWindow from "../../OS/Window";
 import LabelWidget from "../../OS/Widgets/Label";
 import IconWidget from "../../OS/Widgets/Icon";
+import { OS } from "../../OS/OS";
+import { Wallet } from "../Crypto/Wallet";
+import { MojaveSharedDataKeys } from "../Browser/VirtualPages/Mojave";
 
 interface Sender{
     name: string;
@@ -42,45 +45,234 @@ export class EmailApp extends App<{}>{
     private emailList: HTMLDivElement;
     private emailContent: HTMLDivElement;
 
+    private hasEmail: {[subject: string]: boolean} = {};
+
     public constructor(){
         super();
 
         this.allEmails = [];
-        this.allEmails.push({
-            sender: EmailApp.SenderJoffBuzzo,
-            content: (
-                <div>
-                    <p>Welcome to the <span className="properNoun">Webos Crypto Exchange Coorporation</span>! I started this company in my garage in 2056, and have grown it to be worth over 943 trillion CSH. We have 52 multi-national mining offices with just under 700,000 coin exchange staff, of which you are the newest recruit. Blah blah blah.</p>
-                    <p>World building</p>
-                    <p>Call to action. Go read the other email from the IT staff.</p>
-                </div>
-            ),
-            subject: "Welcome!"
-        });
+        // this.allEmails.push({
+        //     sender: EmailApp.SenderJoffBuzzo,
+        //     content: (
+        //         <div>
+        //             <p>Welcome to the <span className="properNoun">Webos Crypto Exchange Coorporation</span>! I started this company in my garage in 2056, and have grown it to be worth over 943 trillion CSH. We have 52 multi-national mining offices with just under 700,000 coin exchange staff, of which you are the newest recruit. Blah blah blah.</p>
+        //             <p>World building</p>
+        //             <p>Call to action. Go read the other email from the IT staff.</p>
+        //         </div>
+        //     ),
+        //     subject: "Welcome!"
+        // });
         
-        this.allEmails.push({
+        // this.allEmails.push({
+        //     sender: EmailApp.SenderITHelper,
+        //     content: (
+        //         <div>
+        //             <p>Before you can get up and running you need to setup you <span className="properNoun">Webos Crypto Exchange Coorporation</span> personal computer.</p>
+        //             <p>World building</p>
+        //             <p>Call to action. Go to the website and buy the miner, and exchange. Maybe that's two steps with another email from like an exchange guy.</p>
+        //         </div>
+        //     ),
+        //     subject: "PC Setup"
+        // });
+
+        this.AddEmail({
             sender: EmailApp.SenderITHelper,
+            subject: "Welcome",
             content: (
                 <div>
-                    <p>Before you can get up and running you need to setup you <span className="properNoun">Webos Crypto Exchange Coorporation</span> personal computer.</p>
-                    <p>World building</p>
-                    <p>Call to action. Go to the website and buy the miner, and exchange. Maybe that's two steps with another email from like an exchange guy.</p>
+                    Welcome to Coin Clicker! This is a game about mining and trading fake
+                    crypto currencies like Alpha Coin (ACN) to make Cash (CSH). Check out
+                    your other emails for help getting started, and consider joining
+                    the <a href="https://discord.gg/yADAGd8" target="_blank">discord</a>.
                 </div>
-            ),
-            subject: "PC Setup"
+            )
         });
+
+        this.AddEmail({
+            sender: EmailApp.SenderITHelper,
+            subject: "Starting Out",
+            content: (
+                <div>
+                    You can start mining Alpha Coin right away by clicking the "Alpha Pickaxe" app
+                    on your desktop. Click the button or press space bar to charge the bar,
+                    and when it fills up you will mine a block of Alpha Coin. You'll start by
+                    getting one Alpha Coin per block you mine, once you sell your Alpha Coins for
+                    Cash you can purchase bonuses and multipliers from <a href="#" data-destination="doors.com">www.doors.com</a> to mine faster.
+                </div>
+            )
+        });
+
+        const emailMakingCash = {
+            sender: EmailApp.SenderITHelper,
+            subject: "Making Cash",
+            content: (
+                <div>
+                    <div>
+                        Now that you've got some ACN you can sell it at the Exchange for CSH. Open
+                        your the browser app on your desktop, navigate
+                        to <a href="#" data-destination="mojave.com">www.mojave.com</a>, and buy
+                        access to the Exchange app. While the Exchange app is open it will
+                        automatically trade your ACN for CSH at the current market price.
+                    </div>
+                    <div>
+                        TODO: image of exchange
+                    </div>
+                    <div>
+                        The Exchange app contains three sections, the top graph section shows you how
+                        the price has changed over the last 10 minutes. The bottom left section shows
+                        info about the going rate of ACN. The current rate is the amount of
+                        CSH you will get per ACN sold right now. The average rate let's you know if
+                        you're currently getting a good deal or not. The min and max rates are the
+                        lowest and highest the rate has been in the last 10 minutes.
+                    </div>
+                </div>
+            )
+        };
+
+        Wallet.AllWallets["ACN"].on("afterChangeValue", () => {
+            if(!this.hasEmail[emailMakingCash.subject] && Wallet.AllWallets["ACN"].amount >= 10){
+                this.AddEmail(emailMakingCash);
+            }
+        });
+
+        const emailAutoMining = {
+            sender: EmailApp.SenderITHelper,
+            subject: "Auto-Miners",
+            content: (
+                <div>
+                    Auto-Miners will save you a lot of effort if you invest in them. They only mine
+                    while open, so make sure you keep them open all the time. Purchase upgrades for your miners 
+                    at  <a href="#" data-destination="alphawolf.org">www.alphawolf.org</a>. Upgrades
+                    can increase base block size, multiply total block size, decrease block duration,
+                    and divide total block duration. Combining all of these upgrades will lead to serious income!
+                </div>
+            )
+        };
+
+        OS.on<MojaveSharedDataKeys>("hasACNMiner0", () => {
+            if(!this.hasEmail[emailAutoMining.subject]){
+                this.AddEmail(emailAutoMining);
+            }
+        });
+
+        const emailTrading = {
+            sender: EmailApp.SenderITHelper,
+            subject: "Trading",
+            content: (
+                <div>
+                    Trading crypto currency can be extremely profitable if you take advantage of the
+                    advanced buy and sell features of the Exchange. Consider turning off auto-sell,
+                    and selling when the rate is high. If you're saving up for an expensive upgrade
+                    you can buy ACN while it's cheap, and flip it later for a profit.
+                </div>
+            )
+        };
+
+        OS.on<MojaveSharedDataKeys>("hasACNBuy", () => {
+            if(!this.hasEmail[emailTrading.subject]){
+                this.AddEmail(emailTrading);
+            }
+        });
+
+        const emailOrders = {
+            sender: EmailApp.SenderITHelper,
+            subject: "Orders",
+            content: (
+                <div>
+                    Exchange orders are a way to automatically buy ACN when the price drops low enough,
+                    or to automatically sell when it gets high enough. Use the slider in the top of the
+                    order tab to choose the rate to wait for, and use the fields below to choose the
+                    quantity. For buy orders the CSH well be held until the order is satisfied, or you
+                    cancel the order. Similarly for sell orders the ACN will be held until the order
+                    is complete or cancelled.
+                </div>
+            )
+        };
+
+        OS.on<MojaveSharedDataKeys>("hasACNBuyOrders", () => {
+            if(!this.hasEmail[emailOrders.subject]){
+                this.AddEmail(emailOrders);
+            }
+        });
+
+        const emailOnlineStores = {
+            sender: EmailApp.SenderITHelper,
+            subject: "Online Stores",
+            content: (
+                <div>
+                    <div>
+                        There are various online stores where you can spend money to increase your rate of progression. 
+                    </div>
+                    <div>
+                        <a href="#" data-destination="mojave.com">www.mojave.com</a> sells automatic ACN miner applications, and Exchange upgrades.
+                    </div>
+                    <div>
+                        <a href="#" data-destination="doors.com">www.doors.com</a> sells upgrades for your Pickaxe app, so you can mine ACN coins faster.
+                    </div>
+                    <div>
+                        <a href="#" data-destination="alphawolf.org">www.alphawolf.org</a> sells upgrades for your automatic miner apps.
+                    </div>
+                    <div>
+                        <a href="#" data-destination="coal.io">www.coal.io</a> sells minigames that are great for killing time, and also boost the effectiveness of your automatic miners!
+                    </div>
+                </div>
+            )
+        }; 
+
+        Wallet.AllWallets["CSH"].on("afterChangeValue", () => {
+            if(!this.hasEmail[emailOnlineStores.subject] && Wallet.AllWallets["CSH"].amount >= 100){
+                this.AddEmail(emailOnlineStores);
+            }
+        });
+
+        
+		let emailElement = $(".item.email > .icon");
+		emailElement.on("click", () => {
+            this.ActivateOrCreate();
+            for(let i = 0; i < this.allEmails.length; i++){
+                if(!this.allEmails[i].read){
+                    this.RenderEmail(i);
+                    break;
+                }
+            }
+		});
+    }
+
+    public AddEmail(email: Email, silent?: boolean): void{
+        if(this.hasEmail[email.subject]){
+            return;
+        }
+        this.hasEmail[email.subject] = true;
+        this.allEmails.push(email);
+        if(!silent){
+            OS.MakeToast("New Email!");
+        }
+        
+        if(this.windowObj && this.emailList){
+            const tempContainer = document.createElement("div");
+            ReactDom.render(this.GetOneEmailDiv(email, this.allEmails.length - 1), tempContainer);
+            const item = tempContainer.children[0];
+            this.emailList.append(item);
+            $(item).on("click", (e) => {
+                let ix = $(e.currentTarget).attr("data-emailindex");
+                console.log("clicked hyper-email " + ix);
+                this.RenderEmail(Number(ix));
+            });
+
+            if(!silent){
+                this.RenderEmail(this.allEmails.length-1);
+            }
+        }
+
+        this.UpdateEmailTaskbarButton();
     }
 
     public CreateWindow(): void{
 		this.windowObj = new WebosWindow({
-			width: 450,
+			width: 472,
 			height: 450,
 			icon: AllIcons.Letter,
 			title: "Email"
-		});
-		
-		this.windowObj.on("close", function(){
-			this.windowObj = null;
 		});
 		
 		this.DrawWindowContent();
@@ -102,12 +294,16 @@ export class EmailApp extends App<{}>{
                 .emailList{
                     position: absolute;
                     left: 0;
-                    width: 135px;
+                    width: 157px;
                     height: 100%;
                     border-right: 2px solid white;
                 }
 
-                .email:hover{
+                .email.active{
+                    background-color: lightgray;
+                }
+
+                .email:hover, .email.active:hover{
                     background-color: white;
                 }
 
@@ -117,7 +313,15 @@ export class EmailApp extends App<{}>{
                     width: 299px;
                     height: 100%;
                     border-left: 2px solid #818180;
-                }`}}></style>,
+                    font-size: 18px;
+                    line-height: 26px;
+                    overflow-y: auto;
+                }
+
+                .emailContent > div{
+                    padding: 4px 8px;
+                }
+                `}}></style>,
             <div key="b" className="emailList" ref={listRef}>{this.GetListEmails()}</div>,
             <div key="c" className="emailContent" ref={contentRef}></div>
             ]
@@ -130,31 +334,70 @@ export class EmailApp extends App<{}>{
 
         this.emailList = listRef.current;
         this.emailContent = contentRef.current;
+
+        this.RenderEmail(0);
     }
 
     private RenderEmail(ix: number): void{
         if(ix < 0 || ix >= this.allEmails.length) return;
         ReactDom.unmountComponentAtNode(this.emailContent);
         ReactDom.render(this.allEmails[ix].content, this.emailContent);
+        this.allEmails[ix].read = true;
+        $(this.emailList).find(".email").removeClass("active");
+        $(this.emailList).find(".email[data-emailindex=" + ix +"] > .unread").addClass("nodisp");
+        $($(this.emailList).find(".email")[ix]).addClass("active");
+        $(this.emailContent).find("a").on("click", (e) => {
+            let destination = $(e.target).attr("data-destination");
+            if(destination){
+                OS.BrowserApp.ActivateOrCreate();
+                OS.BrowserApp.SetURL(destination);
+                OS.BrowserApp.GotoPage();
+                e.preventDefault();
+            }
+        });
+        this.UpdateEmailTaskbarButton();
     }
+    
+	public UpdateEmailTaskbarButton(): void{
+		let layoutElement = $(".item.email > .icon");
+
+        for(let email of this.allEmails){
+            if(!email.read){
+                const icon = AllIcons.Letter.large.dark;
+                layoutElement.css("background-image","url(\"" + AssetLocation + icon.id + "\")");
+                layoutElement.css("width", icon.width + "px");
+                layoutElement.css("height", icon.height + "px");
+                layoutElement.attr("title", "Unread Email");
+                layoutElement.parent().removeClass("nodisp");
+                return;
+            }
+        }
+
+        layoutElement.css("background-image","");
+        layoutElement.attr("title", "");
+        layoutElement.parent().addClass("nodisp");
+	}
 
     private GetListEmails(): JSX.Element[] {
         let eles = [];
         for(let i = 0; i < this.allEmails.length; i++){
             let email = this.allEmails[i];
-            let ele = (
-                <div className="email" key={i} style={{padding: "4px"}} data-emailindex={i}>
-                    <LabelWidget title={email.subject} tooltip="Subject" />
-                    <div>
-                        <div style={{display:"inline-block"}}><IconWidget icon={email.sender.icon.small} /></div>
-                        <div style={{display:"inline-block", width: "7px"}}></div>
-                        <div style={{display:"inline-block"}}><LabelWidget title={email.sender.name} tooltip="Sender" size={12} light={true}/></div>
-                    </div>
-                </div>
-            );
-            eles.push(ele);
+            eles.push(this.GetOneEmailDiv(email, i));
         }
 
         return eles;
+    }
+
+    private GetOneEmailDiv(email: Email, index: number): JSX.Element{
+        return (
+            <div className="email" key={index} style={{padding: "4px"}} data-emailindex={index}>
+                <LabelWidget title={email.subject} tooltip="Subject" />
+                <div className={!!email.read ? "nodisp unread" : "unread"}>
+                    <div style={{display:"inline-block"}}><IconWidget icon={email.sender.icon.small} /></div>
+                    <div style={{display:"inline-block", width: "7px"}}></div>
+                    <div style={{display:"inline-block", marginTop: "-3px"}}><LabelWidget title="Unread" tooltip="Unread" size={12} light={true}/></div>
+                </div>
+            </div>
+        )
     }
 }

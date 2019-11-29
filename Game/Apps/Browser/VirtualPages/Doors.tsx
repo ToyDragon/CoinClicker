@@ -42,7 +42,7 @@ export default class DoorsPage extends VirtualPage{
         [
             <style key="a" dangerouslySetInnerHTML={{__html: `
                 .cactus{
-                    background-image: url("` + AssetLocation + `icons/Mojave128.png");
+                    background-image: url("` + AssetLocation + `icons/Doors128.png");
                     width: 128px;
                     height: 128px;
                     display: inline-block;

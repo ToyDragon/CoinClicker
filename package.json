@@ -31,7 +31,7 @@
   "scripts": {
     "test": "mocha $(find bin/Test -name '*.js')",
     "start": "node Server/Server",
-    "prestart": "sudo ./build.sh"
+    "prestart": "./build.sh"
   },
   "main": "index.js",
   "author": "Frogtown Matt <frogtownmatt@gmail.com> (https://www.frogtown.me)",

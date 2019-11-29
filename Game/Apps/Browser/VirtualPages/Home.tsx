@@ -38,6 +38,10 @@ export default class HomePage extends VirtualPage{
                     background-image: url("` + AssetLocation + `icons/AlphaWolf64.png");
                 }
                 
+                .doors{
+                    background-image: url("` + AssetLocation + `icons/Doors64.png");
+                }
+                
                 .headerSection{
                     padding-top: 15px;
                     padding-bottom: 30px;
@@ -114,7 +118,7 @@ export default class HomePage extends VirtualPage{
 
         data.push({
             destination: "doors.com",
-            iconClass: "cactus",
+            iconClass: "doors",
             subtitle: "Pickaxe Upgrades",
             title: "Doors"
         });

@@ -223,6 +223,36 @@ html, body {
   grid-row: 2;
   background-color: white; }
 
+.trelloLogo {
+  display: inline-block;
+  background-image: url("../../Assets/trello-logo-gradient-blue@2x.png");
+  width: 96px;
+  height: 44px;
+  background-size: 100% 100%;
+  margin-top: -20px;
+  margin-bottom: -17px;
+  margin-left: 20px; }
+
+.discordLogo {
+  display: inline-block;
+  background-image: url("../../Assets/Discord-Logo+Wordmark-Black.png");
+  width: 134px;
+  height: 51px;
+  background-size: 100% 100%;
+  margin-top: -40px;
+  margin-bottom: -21px;
+  margin-left: -3px; }
+
+.githubLogo {
+  display: inline-block;
+  background-image: url("../../Assets/GitHub_Logo.png");
+  width: 81px;
+  height: 33px;
+  background-size: 100% 100%;
+  margin-top: -40px;
+  margin-bottom: -10px;
+  margin-left: 23px; }
+
 .logo {
   background-image: url("../../Assets/Frog256.png");
   position: absolute;
@@ -325,6 +355,12 @@ html, body {
   overflow: hidden;
   white-space: nowrap; }
 
+#taskbar .item.compact {
+  margin-right: 0; }
+
+#taskbar .item.compact > .icon {
+  margin-top: 6px; }
+
 #taskbar .item > .icon {
   margin: 3px; }
 
@@ -378,6 +414,13 @@ html, body {
 
 .minerLabel {
   text-align: center; }
+
+#taskbar .item.email:hover {
+  background-image: url("../../Assets/grid-blue-sm.png"); }
+
+#taskbar .item.email .icon {
+  margin: 3px;
+  margin-top: 0; }
 
 #taskbar .item.money:hover {
   background-image: url("../../Assets/grid-blue-sm.png"); }
