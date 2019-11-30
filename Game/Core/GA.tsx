@@ -63,10 +63,22 @@ const Events = {
     BrowserClose: new EventData("Window", "BrowserClose"),
     BrowserNavigate: new EventData("Browser", "Navigate"),
 
+    WalletOpen: new EventData("Window", "WalletOpen"),
+    WalletClose: new EventData("Window", "WalletClose"),
+
     MojaveBuy: new EventData("Mojave","Buy"),
     DoorsBuy: new EventData("Doors","Buy"),
     CoalBuy: new EventData("Coal","Buy"),
     AlphaWolfBuy: new EventData("AlphaWolf","Buy"),
+
+    SnakeOpen: new EventData("Window", "SnakeOpen"),
+    SnakeClose: new EventData("Window", "SnakeClose"),
+    SnakeFinishGame: new EventData("Snake", "FinishGame"),
+
+    DougOpen: new EventData("Window", "DougOpen"),
+    DougClose: new EventData("Window", "DougClose"),
+    DougShopSell: new EventData("Doug", "ShopSell"),
+    DougShopBuy: new EventData("Doug", "ShopBuy"),
 };
 
 interface EventParams<Labels>{

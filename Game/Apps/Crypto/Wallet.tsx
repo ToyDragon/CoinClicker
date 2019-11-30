@@ -6,6 +6,7 @@ import { IconDescriptor, AllIcons } from "../../Core/Icons";
 import Observable from "../../Core/Observable";
 import WebosWindow from "../../OS/Window";
 import { OS, SharedDataKeys } from "../../OS/OS";
+import GA from "../../Core/GA";
 
 interface WalletOptions{
     symbol: string;
@@ -171,10 +172,12 @@ export class WalletApp extends App<{}>{
 
     public CreateWindow(): void{
 		this.windowObj = new WebosWindow({
-			width: 430,
+			width: 250,
 			height: 149,
 			icon: AllIcons.Wallet,
-			title: "Wallet"
+            title: "Wallet",
+            openEvent: GA.Events.WalletOpen,
+            closeEvent: GA.Events.WalletClose
 		});
 		
 		this.windowObj.on("close", function(){

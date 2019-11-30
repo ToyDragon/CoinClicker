@@ -24,6 +24,8 @@ export default class AlphaWolfPage extends VirtualPage{
 
     public rootDiv: JQuery;
     public mainSymbol: string;
+    private blockBoostValues: number[];
+    private speedBoostValues: number[];
 
     public constructor(){
         super();
@@ -154,6 +156,9 @@ export default class AlphaWolfPage extends VirtualPage{
         ]
         , contentDiv[0]);
 
+        this.blockBoostValues = [1.18, 1.12, 1.11, 1.19, 1.15, 1.13, 1.1, 1.14, 1.17, 1.16, 1.2];
+        this.speedBoostValues = this.blockBoostValues.reverse();
+
         this.rootDiv = $(rootRef.current);
         this.UpdateItems();
     }
@@ -264,21 +269,22 @@ export default class AlphaWolfPage extends VirtualPage{
 			let track = i%2;
 			let trackIndex = Math.floor(i/2);
 			let boostVal = this.GetUpgradeBoost(track, trackIndex);
-			let item = new ShopItem();
+            let item = new ShopItem();
+            const price = 200 * Math.pow(1.2, i);
 			if(track){
                 item.title = boostNames[trackIndex];
                 item.subtitle = this.GetBlockDisplay(boostVal);
-                item.action = this.CreateTryBuyUpgrade(track, trackIndex, this.GetPrice(i), {name: item.title, blockMultiplier: boostVal});
+                item.action = this.CreateTryBuyUpgrade(track, trackIndex, price, {name: item.title, blockMultiplier: boostVal});
 			} else {
                 item.title = speedNames[trackIndex];
                 item.subtitle = this.GetSpeedDisplay(boostVal); 
-                item.action = this.CreateTryBuyUpgrade(track, trackIndex, this.GetPrice(i), {name: item.title, speedBoost: boostVal});
+                item.action = this.CreateTryBuyUpgrade(track, trackIndex, price, {name: item.title, speedBoost: boostVal});
 			}
 			
 			item.track = track;
 			item.trackIndex = trackIndex;
 			item.icon = track ? AllIcons.ComputerBoardPower : AllIcons.ComputerBoardSpeed;
-			item.price = this.GetPrice(i);
+			item.price = price;
 			item.symbol = "CSH";
 			
 			items.push(item);
@@ -317,29 +323,19 @@ export default class AlphaWolfPage extends VirtualPage{
 	
 	public GetSpeedDisplay(speed: number): string{
 		var percent = (speed - 1)*100;
-		return "+"+percent+"% Mining Speed"
+		return "+"+Utils.DisplayNumber(percent)+"% Mining Speed"
 	}
 	
 	public GetBlockDisplay(boost: number): string{
 		var percent = (boost - 1)*100;
-		return "+"+percent+"% Block Size"
-	}
-
-    private GetUpgradeBoost(track: number, trackNumber: number): number{
-		var speeds = [2,2,2.2,1.9,1.5,1.6,2.6,2.2,1.5,2,2,1.5,2,1.75,1.5,2];
-		var blockBoosts = speeds.reverse();
-		if(track == 0){
-			return speeds[trackNumber%speeds.length];
-		}
-		return blockBoosts[trackNumber%blockBoosts.length];
+		return "+"+Utils.DisplayNumber(percent)+"% Block Size"
     }
 
-    private GetPrice(trackNumber: number): number{
-		if(trackNumber == 0) return 250;
-		let multiplier = [1.4,1.9,1.6][trackNumber%3];
-		let newPrice = multiplier * this.GetPrice(trackNumber-1);
-		newPrice = Math.round(newPrice * 100)/100;
-		return newPrice;
+    private GetUpgradeBoost(track: number, trackNumber: number): number{
+		if(track == 0){
+			return this.speedBoostValues[trackNumber%this.speedBoostValues.length];
+		}
+		return this.blockBoostValues[trackNumber%this.blockBoostValues.length];
     }
 
     private GetUpgradeName(track: number, trackNumber: number): string{

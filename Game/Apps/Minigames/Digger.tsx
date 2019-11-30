@@ -10,6 +10,7 @@ import LabelWidget from "../../OS/Widgets/Label";
 import Miner from "../Crypto/Miner";
 import { CSSProperties } from "react";
 import IconWidget from "../../OS/Widgets/Icon";
+import GA from "../../Core/GA";
 
 class Point{
     public x: number;
@@ -424,7 +425,7 @@ export default class DiggerGame extends App<{}>{
     public static grassRow: number = 5;
 
     public static bonusPoints: number = 0;
-    public static maxBonus: number = 2;
+    public static maxBonus: number = 0.5;
     public static maxPoints: number = 20;
 
     private canvas: HTMLCanvasElement;
@@ -646,7 +647,9 @@ export default class DiggerGame extends App<{}>{
 			innerWidth: DiggerGame.screenWidth * DiggerGame.tileSize,
 			innerHeight: DiggerGame.screenHeight * DiggerGame.tileSize,
 			icon: AllIcons.Shovel,
-			title: this.options.title
+            title: this.options.title,
+            openEvent: GA.Events.DougOpen,
+            closeEvent: GA.Events.DougClose,
 		});
 		
 		this.windowObj.on("keydown", (e) => {
@@ -769,8 +772,10 @@ export default class DiggerGame extends App<{}>{
 
             if(pos.x <= 1 && pos.y === DiggerGame.grassRow-1){
                 DiggerGame.player.energy = DiggerGame.player.maxEnergy;
+                let log = false;
                 if(DiggerGame.player.inventroyValue > 0){
                     OS.MakeToast("Sold ore for " + DiggerGame.player.inventroyValue + "!");
+                    log = true;
                 }
                 if(DiggerGame.player.hasPlutonium){
                     if(DiggerGame.bonusPoints >= DiggerGame.maxPoints){
@@ -785,6 +790,13 @@ export default class DiggerGame extends App<{}>{
                             name: "Plutonium Boost"
                         });
                     }
+                    log = true;
+                }
+                if(log){
+                    GA.Event(GA.Events.DougShopSell, {
+                        value: DiggerGame.player.inventroyValue,
+                        label: (DiggerGame.bonusPoints || 0) + ""
+                    });
                 }
                 DiggerGame.player.hasPlutonium = false;
                 DiggerGame.player.money += DiggerGame.player.inventroyValue;
@@ -1007,6 +1019,11 @@ class DiggerShop extends App<{}>{
                     }else{
                         this.equips.splice(index, 1);
                     }
+
+                    GA.Event(GA.Events.DougShopBuy, {
+                        value: item.cost,
+                        label: isUpgrade ? "upgrade" : "equipment"
+                    });
 
                     this.UpdateDisplay();
                 }

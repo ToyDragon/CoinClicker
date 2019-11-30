@@ -45,8 +45,8 @@ const EmailData = {
     ),
     "Adblock": (
         <div>
-            Most adblockers have a button to disable them for the current site only, 
-            <span style={{fontWeight: "bold"}}>please consider turning off adblock
+            Most adblockers have a button to disable them for the current site
+            only, <span style={{fontWeight: "bold"}}>please consider turning off adblock
             for this site</span>. Coin Clicker contains NO advertisements, we use google analytics
             to track which features engage users the most to guide development decisions. You can
             keep using adblock if you are paranoid, but disabling it will help us prioritize which
@@ -109,8 +109,8 @@ const EmailData = {
             only carry so many ores in his inventory (INV). Take trips underground collecting
             resources and bring them back to the shop above ground. Purchase upgrades so you
             can dig deeper and carry more. Every 100 blocks or so is a green plutonium ore that
-            will permanently increase the base block size of your miners by +0.1, up to a
-            maximum of +2 at 20 plutonium.
+            will permanently increase the base block size of your miners, up to a
+            maximum of +0.5 at 20 plutonium.
         </div>
     ),
     "Snake": (
@@ -118,8 +118,7 @@ const EmailData = {
             Snake is a retro ASCII game where you try to eat as many apples as you can without
             crashing into your own tail. Control the snake with WASD or the arrow keys. While
             your snake is alive your miners will recieve a 25% mining speed bonus, and your
-            high score will permanently add bonus coins to every mined block! The max is 2 ACN
-            added to the base size of every block at a high score of 40 apples.
+            high score will permanently add bonus coins to every mined block!
         </div>
     ),
     "Online Stores": (

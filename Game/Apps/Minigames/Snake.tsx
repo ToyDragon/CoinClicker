@@ -2,6 +2,7 @@ import App from "../App";
 import WebosWindow from "../../OS/Window";
 import { AllIcons } from "../../Core/Icons";
 import Miner, { BoostItem } from "../Crypto/Miner";
+import GA from "../../Core/GA";
 
 interface SnakeOptions{
     title: string;
@@ -36,7 +37,7 @@ export default class Snake extends App<{}>{
 
     private static highScore: number = 0;
     private static maxApples: number = 40;
-    private static maxBoost: number = 2;
+    private static maxBoost: number = 0.5;
     private static playingBonus: BoostItem = {
         speedBoost: 1.25,
         name: "Snake Speed",
@@ -125,7 +126,9 @@ export default class Snake extends App<{}>{
 			innerWidth: this.width * this.tileSize,
 			innerHeight: this.height * this.tileSize,
 			icon: AllIcons.Snake,
-			title: this.options.title
+            title: this.options.title,
+            openEvent: GA.Events.SnakeOpen,
+            closeEvent: GA.Events.SnakeClose,
 		});
 		
 		this.windowObj.on("keydown", (e) => {
@@ -189,6 +192,9 @@ export default class Snake extends App<{}>{
                     blockBoost: Snake.maxBoost * Math.min(points / Snake.maxApples, 1),
                     name: "Snake Highscore Bonus",
                     symbol: "ACN"
+                });
+                GA.Event(GA.Events.SnakeFinishGame, {
+                    value: points
                 });
             }
             return;

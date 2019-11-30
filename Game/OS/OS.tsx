@@ -309,6 +309,11 @@ export class OS{
 		});
 
 		OS.AboutApp = new AboutApp();
+		OS.CreateDesktopItem({
+			title: "About",
+			icon: AllIcons.Frog,
+			app: OS.AboutApp
+		});
 
 		$("#menu").on("mousedown", (e) => {
 			ContextMenu.CloseAllContextMenus();

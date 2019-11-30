@@ -235,6 +235,8 @@ export default class MojavePage extends VirtualPage{
                         icon: AllIcons.ComputerBoardOutline,
                         app: app
                     });
+
+                    app.ActivateOrCreate();
                 }
             });
             
@@ -256,7 +258,7 @@ export default class MojavePage extends VirtualPage{
                     gaLabel: "exchange_sell",
                     hasVar: "hasACNAdvancedSell",
                     title: "ACN Selling",
-                    subtitle: "Sell sAlpha Coins",
+                    subtitle: "Sell Alpha Coins",
                     icon: AllIcons.AlphaExchange,
                     price: 2499,
                     symbol: "CSH",

@@ -171,9 +171,9 @@ export default class DoorsPage extends VirtualPage{
             "Running Shoes",
 		];
         
-        let price = 150;
+        let price = 650;
 		for(let i = 0; i < speedNames.length; i++){
-            const boostAmt = i + 1;
+            const boostAmt = Math.pow(1.15, i+1) - Math.pow(1.15, i);
             items.push({
                 hasVar: "hasClickUpgrade"+i,
                 index: i + "",
@@ -191,7 +191,7 @@ export default class DoorsPage extends VirtualPage{
                 price: price,
                 symbol: "CSH"
             });
-            price *= 1.4;
+            price *= 1.23;
 		}
 		
 		return items;
