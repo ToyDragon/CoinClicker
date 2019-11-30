@@ -88,6 +88,9 @@ export default class Exchange extends App<Events>{
     public blessingRange: number;
     public blessingLength: number;
 
+    private autosellEventTimout: NodeJS.Timeout;
+    private autoSellEventQty: number = 0;
+
     private buyOrder: BuySellOrder | null;
     private sellOrder: BuySellOrder | null;
 
@@ -140,6 +143,8 @@ export default class Exchange extends App<Events>{
                 () => {this.AutoSell();}
             , 150);
         });
+
+        this.autosellEventTimout = setInterval(() => {this.SendAutoSellEvent();}, 2500);
     }
 
     private OnTick(): void{
@@ -156,6 +161,19 @@ export default class Exchange extends App<Events>{
         Exchange.LastTick = new Date().getTime();
     }
 
+    private SendAutoSellEvent(): void{
+        if(this.autoSellEventQty > 0){
+            this.autoSellEventQty = 0;
+            GA.Event(GA.Events.ExchangeAutoSell, {
+                value: this.autoSellEventQty,
+                metrics: {
+                    TotalACNSold: Exchange.totalACNSold,
+                    TotalCSHEarned: Exchange.totalCSHEarned
+                }
+            });
+        }
+    }
+
     private AutoSell(): void{
         if(!this.tradeTab || !this.tradeTab.current || !this.tradeTab.current.getAutoSellEnabled()){
             return;
@@ -170,6 +188,9 @@ export default class Exchange extends App<Events>{
 
         Wallet.AllWallets["CSH"].ChangeValue(sellAmt);
         Wallet.AllWallets[this.symbol].ChangeValue(-sellQty);
+        this.autoSellEventQty += sellQty;
+        Exchange.totalACNSold += sellQty;
+        Exchange.totalCSHEarned += sellAmt;
     }
 
     private CheckOrders(): void{

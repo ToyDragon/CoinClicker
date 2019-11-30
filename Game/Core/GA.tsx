@@ -49,6 +49,7 @@ const Events = {
     ExchangeDisableAutoSell: new EventData("Exchange", "DisableAutoSell"),
     ExchangeManualBuy: new EventData("Exchange", "ManualBuy"),
     ExchangeManualSell: new EventData("Exchange", "ManualSell"),
+    ExchangeAutoSell: new EventData("Exchange", "AutoSell"),
 
     ExchangePlaceBuyOrder: new EventData("Exchange", "PlaceBuyOrder"),
     ExchangeCancelBuyOrder: new EventData("Exchange", "CancelBuyOrder"),
