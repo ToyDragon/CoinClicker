@@ -8,6 +8,7 @@ import { Wallet } from "../../Crypto/Wallet";
 import Snake from "../../Minigames/Snake";
 import Pinball from "../../Minigames/Pinball";
 import DiggerGame from "../../Minigames/Digger";
+import GA from "../../../Core/GA";
 
 interface ShopItem{
     title: string;
@@ -29,6 +30,10 @@ export default class CoalPage extends VirtualPage{
 
     public constructor(){
         super();
+    }
+
+    public GetURL(): string {
+        return "www.coal.io";
     }
 
     public MatchesAddress(address: string): boolean{
@@ -259,7 +264,8 @@ export default class CoalPage extends VirtualPage{
             app: new Snake({title: "Snake"})
 		});
 		
-		this.UpdateItems();
+        this.UpdateItems();
+        GA.Event(GA.Events.CoalBuy, {label: "Snake"});
 	}
 	/*
 	function tryBuyMusic(){
@@ -276,7 +282,8 @@ export default class CoalPage extends VirtualPage{
 			click: musicplayer.activateOrLaunch
 		});
 		
-		updateItems();
+        updateItems();
+        //TODO GA
 	}
 	
 	private tryBuyPinball(): void{
@@ -288,7 +295,8 @@ export default class CoalPage extends VirtualPage{
 				app: new Pinball({title: "Plunko", symbol: "ACN"})
 			});
 			
-			this.UpdateItems();
+            this.UpdateItems();
+            //TODO GA
 		}
     }
     */
@@ -307,7 +315,8 @@ export default class CoalPage extends VirtualPage{
 				app: new DiggerGame({title: "Doug the Digger"})
 			});
 			
-			this.UpdateItems();
+            this.UpdateItems();
+            GA.Event(GA.Events.CoalBuy, {label: "Doug the Digger"});
 		}
     }
 

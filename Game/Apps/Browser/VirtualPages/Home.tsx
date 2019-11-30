@@ -18,6 +18,10 @@ export default class HomePage extends VirtualPage{
         super();
     }
 
+    public GetURL(): string {
+        return "www.home.net";
+    }
+
     public MatchesAddress(address: string): boolean{
         return /^(www\.)?home\.net/i.test(address);
     }

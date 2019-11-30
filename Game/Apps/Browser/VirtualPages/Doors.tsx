@@ -7,12 +7,14 @@ import { AllIcons, IconDescriptor } from "../../../Core/Icons";
 import { Wallet } from "../../Crypto/Wallet";
 import Exchange from "../../Crypto/Exchange/Exchange";
 import Miner from "../../Crypto/Miner";
+import GA from "../../../Core/GA";
 
 export interface DoorsSharedDataKeys extends SharedDataKeys{
 
 }
 
 class ShopItem{
+    index: string;
     hasVar: string;
     subtitle: string;
     action: (item: ShopItem) => void;
@@ -28,6 +30,10 @@ export default class DoorsPage extends VirtualPage{
 
     public constructor(){
         super();
+    }
+
+    public GetURL(): string {
+        return "www.doors.com";
     }
 
     public MatchesAddress(address: string): boolean{
@@ -170,6 +176,7 @@ export default class DoorsPage extends VirtualPage{
             const boostAmt = i + 1;
             items.push({
                 hasVar: "hasClickUpgrade"+i,
+                index: i + "",
                 subtitle: "+" + Utils.DisplayNumber(boostAmt) + " Block Size",
                 action: (item: ShopItem) => {
                     OS.PickaxeApp.AddBoost({
@@ -240,6 +247,7 @@ export default class DoorsPage extends VirtualPage{
         rowDiv.on("click", () => {
             Wallet.TryBuy<any>(item.hasVar, item.price, item.symbol).then(() => {
                 item.action(item);
+                GA.Event(GA.Events.DoorsBuy, {label: item.index});
                 this.UpdateItems();
             });
         });

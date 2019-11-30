@@ -902,7 +902,8 @@ class DiggerShop extends App<{}>{
 			innerWidth: 388,
 			innerHeight: 277,
 			icon: AllIcons.Shovel,
-			title: "Digger Shop"
+            title: "Digger Shop",
+            parent: this.options.game.windowObj
 		});
 		
 		this.windowObj.on("keydown", (e) => {

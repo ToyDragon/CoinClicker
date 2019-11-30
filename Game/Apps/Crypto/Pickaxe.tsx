@@ -11,6 +11,7 @@ import LabelWidget from "../../OS/Widgets/Label";
 import Utils from "../../Core/Utils";
 import IconWidget from "../../OS/Widgets/Icon";
 import { OS } from "../../OS/OS";
+import GA from "../../Core/GA";
 
 interface PickaxeEvents{
     boostChanged;
@@ -52,6 +53,8 @@ export default class Pickaxe extends App<PickaxeEvents>{
     private lblDoorLink: React.RefObject<LabelWidget>;
     private lblDoorLink2: React.RefObject<LabelWidget>;
 
+    private totalACNMined: number = 0;
+    private fromButton: boolean;
     private keyIsDown: boolean;
 
     public constructor(options: PickaxeOptions){
@@ -101,6 +104,9 @@ export default class Pickaxe extends App<PickaxeEvents>{
     }
 
     private UpdateLabels(): void{
+        if(!this.lblBaseValue || !this.lblBaseValue.current){
+            return;
+        }
         this.lblBaseValue.current.SetTitle(Utils.DisplayNumber(this.coinAmtBase));
         this.lblAmtAdd.current.SetTitle("+"+Utils.DisplayNumber(this.coinAmtAdd));
         this.lblAmtMult.current.SetTitle("x"+Utils.DisplayNumber(this.coinAmtMult));
@@ -137,7 +143,8 @@ export default class Pickaxe extends App<PickaxeEvents>{
         return div;
     }
 
-    private mine(): void{
+    private mine(fromButton: boolean): void{
+        this.fromButton = fromButton;
         this.loadingBar.current.NextFrame();
     }
 
@@ -147,7 +154,9 @@ export default class Pickaxe extends App<PickaxeEvents>{
             height: 228,
             resizable: false,
             icon: AllIcons.AlphaCoin,
-            title: "Alpha Pickaxe"
+            title: "Alpha Pickaxe",
+            openEvent: GA.Events.MinerOpen,
+            closeEvent: GA.Events.MinerClose
         });
         
         const triggerPoints: TriggerPoint[] = [];
@@ -158,6 +167,13 @@ export default class Pickaxe extends App<PickaxeEvents>{
                     value: 100*(i+1),
                     complete: () => {
                         const amt = this.GetAmountPerBlock();
+                        this.totalACNMined += amt;
+                        GA.Event(GA.Events.PickaxeMine, {
+                            label: this.fromButton ? "Mouse" : "Keyboard",
+                            metrics: {
+                                TotalACNMined: this.totalACNMined
+                            }
+                        });
                         Wallet.AnimatedAdd("ACN", amt, amt, 1);
                         this.loadingBar.current.Restart();
                     }
@@ -179,7 +195,7 @@ export default class Pickaxe extends App<PickaxeEvents>{
         ReactDom.render(
             <React.Fragment>
                 <LoadingBarWidget ref={this.loadingBar = React.createRef<LoadingBarWidget>()} totalDuration={500} triggerPoints={triggerPoints} noAutoStart={true} />
-                <ButtonWidget ref={this.btnMine = React.createRef<ButtonWidget>()} onClick={() => {this.mine();}} title="Mine Alpha Coin" style={btnStyles} fontSize={22} />
+                <ButtonWidget ref={this.btnMine = React.createRef<ButtonWidget>()} onClick={() => {this.mine(true);}} title="Mine Alpha Coin" style={btnStyles} fontSize={22} />
                 
                 <div>
                     <div style={center}>
@@ -243,7 +259,7 @@ export default class Pickaxe extends App<PickaxeEvents>{
         this.windowObj.on("keyup", (key: JQuery.Event) => {
             if(key.keyCode == 32 && this.keyIsDown){
                 this.btnMine.current.VisiblyUnclick();
-                this.mine();
+                this.mine(false);
                 this.keyIsDown = false;
             }
         });

@@ -5,6 +5,8 @@ import Taskbar from "./Taskbar";
 import ContextMenu from "./ContextMenu"
 import { OS } from "./OS";
 import { connect } from "net";
+import Popup, { PromptType } from "./Popup";
+import GA, { EventData } from "../Core/GA";
 
 export interface WebosWindowOptions{
     width?: number;
@@ -14,7 +16,13 @@ export interface WebosWindowOptions{
     resizable?: boolean;
     noclose?: boolean;
     background?: boolean;
-    highlight?: boolean;
+	highlight?: boolean;
+	parent?: WebosWindow;
+
+	openEvent?: EventData;
+	closeEvent?: EventData;
+	
+	closeWarning?: string;
 
     innerWidth?: number;
     innerHeight?: number;
@@ -176,8 +184,16 @@ export default class WebosWindow extends Observable<Events>{
 		if(event.keyCode == 27){
 			var activeId = WebosWindow.GetActiveWindow();
 			if(activeId){
-				WebosWindow.ActivateNextWindow(true);
-				WebosWindow.AllWindows[activeId].CloseWindow(false);
+				const window = WebosWindow.AllWindows[activeId];
+				window.CloseWindowUser().then((closed: boolean) => {
+					if(closed){
+						if(window.parent){
+							window.parent.ActivateWindow(false);
+						}else{
+							WebosWindow.ActivateNextWindow(true);
+						}
+					}
+				});
 			}
 			event.preventDefault();
 			return;
@@ -208,9 +224,12 @@ export default class WebosWindow extends Observable<Events>{
 
 	public static RepositionWindowsOrdered(): void{
 		let windowList: WebosWindow[] = [];
+		let windowChildren: {[parentId: string]: string} = {};
 		for(let id in WebosWindow.AllWindows){
 			const window = WebosWindow.AllWindows[id];
-			if(!window.minimized){
+			if(window.parent){
+				windowChildren[window.parent.id] = window.id;
+			}else if(!window.minimized){
 				windowList.push(window);
 			}
 		}
@@ -259,6 +278,10 @@ export default class WebosWindow extends Observable<Events>{
 			rowOffset = size.y + buffer;
 			window.SetPos(colLeft, rowTop);
 			WebosWindow.WindowOrder.push(window.id);
+			let childId = windowChildren[window.id];
+			if(childId){
+				WebosWindow.WindowOrder.push(childId);
+			}
 
 			//Fill stack
 			for(let i = 1; i < windowList.length; i++){
@@ -269,6 +292,10 @@ export default class WebosWindow extends Observable<Events>{
 					colRight = Math.max(colLeft + size.x, colRight);
 					rowOffset += size.y + buffer;
 					WebosWindow.WindowOrder.push(window.id);
+					childId = windowChildren[window.id];
+					if(childId){
+						WebosWindow.WindowOrder.push(childId);
+					}
 
 					windowList.splice(i, 1);
 					i--;
@@ -315,13 +342,17 @@ export default class WebosWindow extends Observable<Events>{
 		WebosWindow.UpdateLayoutButton();
 	}
 
+	public closePopup: Popup;
     public contentDiv: JQuery;
     public folderId: string;
     public title: string;
     public id: string;
     public animationData: RunningAnimationData;
     public active: boolean;
-    public icon: IconDescriptor;
+	public icon: IconDescriptor;
+	public closeMessage: string;
+
+	public parent: WebosWindow;
 
     public minimized: boolean;
     public closed: boolean;
@@ -338,7 +369,8 @@ export default class WebosWindow extends Observable<Events>{
     public titleDiv: JQuery;
     public iconElement: JQuery;
 
-    private locked: number;
+	private locked: number;
+	private windowElement: JQuery<HTMLDivElement>;
 
     public Lock(): void{
         if(this.locked == 0){
@@ -369,7 +401,36 @@ export default class WebosWindow extends Observable<Events>{
     public SetPos(x: number, y: number){
 		this.windowContainer.css("left", x);
 		this.windowContainer.css("top", y);
-    }
+	}
+	
+	public CloseWindowUser(): Promise<boolean>{
+		return new Promise((resolve, _reject) => {
+			if(this.closeMessage){
+				if(!this.closePopup){
+					this.closePopup = new Popup({
+						title: "Close",
+						type: PromptType.yesno,
+						text: this.closeMessage,
+						parent: this,
+						accept: () => {
+							this.CloseWindow(false);
+							this.closePopup = null;
+							resolve(true);
+						},
+						cancel: () => {
+							this.closePopup = null;
+							resolve(false);
+						},
+					});
+				}else{
+					this.closePopup.Activate();
+				}
+			}else{
+				this.CloseWindow(false);
+				resolve(true);
+			}
+		});
+	}
     
     public CloseWindow(dontNotifyOthers: boolean): void{
         if(this.locked || this.closed)
@@ -468,11 +529,10 @@ export default class WebosWindow extends Observable<Events>{
 		WebosWindow.RepositionWindows();
 	}
 
-	private windowElement: JQuery<HTMLDivElement>;
-
     public constructor(options: WebosWindowOptions){
         super();
 
+		this.parent = options.parent;
 		this.locked = 0;
 
 		WebosWindow.LastWindowId++;
@@ -482,11 +542,17 @@ export default class WebosWindow extends Observable<Events>{
 		this.windowContainer.addClass("windowContainer");
 		WebosWindow.AllWindows[this.id] = this;
 
+		this.closeMessage = options.closeWarning || "";
 		this.width = options.width || (options.innerWidth && (options.innerWidth + 10)) || 400;
 		this.height = options.height || (options.innerHeight && (options.innerHeight + 40)) || 300;
 		var y = options.y;
 		var x = options.x;
-		if(!x && !y){
+		if(this.parent){
+			let pos = this.parent.GetPos();
+			let size = this.parent.GetSize();
+			x = pos.x + size.x/2 - this.width/2;
+			y = pos.y + size.y/2 - this.height/2 + 60; //60 is kind of a hack for Doug
+		}else if(!x && !y){
 			var yoffset = (WebosWindow.AutoPosCount % 4) * WebosWindow.AutoOffset - Math.floor(WebosWindow.AutoPosCount / 4) * WebosWindow.AutoOffset;
 			var xoffset = Math.floor(WebosWindow.AutoPosCount / 4) * WebosWindow.AutoOffset + (WebosWindow.AutoPosCount % 4) * WebosWindow.AutoOffset;
 			x = Math.floor(($("#desktop").outerWidth() - this.width)/2 + xoffset);
@@ -541,7 +607,7 @@ export default class WebosWindow extends Observable<Events>{
 			actionClose.append(closeTitle);
 			endingSection.append(actionClose);
 			actionClose.on("mousedown", () => {
-				this.CloseWindow(false);
+				this.CloseWindowUser();
 			});
 		}
 
@@ -650,7 +716,16 @@ export default class WebosWindow extends Observable<Events>{
 		this.UpdateIcon();
 		WebosWindow.RepositionWindows();
         this.on("activate", () => { this.UpdateIcon(); });
-        this.on("deactivate", () => { this.UpdateIcon(); });
+		this.on("deactivate", () => { this.UpdateIcon(); });
+		
+		if(options.openEvent){
+			GA.Event(options.openEvent);
+		}
+		if(options.closeEvent){
+			this.on("close", () => {
+				GA.Event(options.closeEvent);
+			})
+		}
     }
 
     public UpdateIcon(): void{

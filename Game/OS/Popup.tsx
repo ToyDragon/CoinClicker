@@ -13,6 +13,7 @@ interface PopupOptions{
 
     text?: string;
     content?: JSX.Element;
+    parent?: WebosWindow;
 
     accept?: Function;
     cancel?: Function;
@@ -26,7 +27,8 @@ interface PopupOptions{
 
 export enum PromptType{
     notification,
-    text
+    text,
+    yesno
 }
 
 export default class Popup{
@@ -45,6 +47,7 @@ export default class Popup{
             height: 160,
             title: options.title,
             icon: options.icon || AllIcons.Letter,
+            parent: options.parent
         });
 
         let contentDiv = $("<div></div>");
@@ -69,6 +72,7 @@ export default class Popup{
                 <ButtonWidget title={options.actionName || "OK"} onClick={() => { this.Accept(); this.window.CloseWindow(false); }} />
             </div>);
         }else{
+            //all types other than notification yet accept/cancel buttons
             content.push(<div key="actions" style={{position:"absolute", bottom: 0, right: this.options.rightOffset}}>
                 <ButtonWidget title={options.actionName || "Accept"} onClick={() => { this.Accept(); this.window.CloseWindow(false); }} />
                 <ButtonWidget title="Cancel" onClick={() => { this.Cancel(); this.window.CloseWindow(false); }} />

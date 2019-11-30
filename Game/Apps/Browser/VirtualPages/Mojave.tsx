@@ -7,6 +7,7 @@ import { AllIcons, IconDescriptor } from "../../../Core/Icons";
 import { Wallet } from "../../Crypto/Wallet";
 import Exchange from "../../Crypto/Exchange/Exchange";
 import Miner from "../../Crypto/Miner";
+import GA from "../../../Core/GA";
 
 export interface MojaveSharedDataKeys extends SharedDataKeys{
     hasACNExchange: boolean;
@@ -23,6 +24,7 @@ export interface MojaveSharedDataKeys extends SharedDataKeys{
 }
 
 class ShopItem{
+    gaLabel: string;
     track?: number;
     trackIndex?: number;
     subtitle: string;
@@ -40,6 +42,9 @@ export default class MojavePage extends VirtualPage{
 
     public constructor(){
         super();
+    }
+    public GetURL(): string {
+        return "www.mojave.com";
     }
 
     public MatchesAddress(address: string): boolean{
@@ -161,6 +166,7 @@ export default class MojavePage extends VirtualPage{
 		const items: ShopItem[] = [];
         
         items.push({
+            gaLabel: "exchange",
             hasVar: "hasACNExchange",
             title: "Alpha Exchange",
             subtitle: "Sell Alpha Coin For Cash",
@@ -205,6 +211,7 @@ export default class MojavePage extends VirtualPage{
                 price = 20; //Super low to make sure it can be afforded no matter what on the first sale.
             }
 			items.push({
+                gaLabel: "miner_"+i,
 				hasVar: ("has" + symbol + "Miner" + i) as any,
 				title: baseTitle,
 				subtitle: subtitles[i],
@@ -233,6 +240,7 @@ export default class MojavePage extends VirtualPage{
             
             if(i == 0){
                 items.push({
+                    gaLabel: "exchange_buy",
                     hasVar: "hasACNBuy",
                     title: "ACN Purchasing",
                     subtitle: "Buy Alpha Coins",
@@ -245,6 +253,7 @@ export default class MojavePage extends VirtualPage{
                 });
 
                 items.push({
+                    gaLabel: "exchange_sell",
                     hasVar: "hasACNAdvancedSell",
                     title: "ACN Selling",
                     subtitle: "Sell sAlpha Coins",
@@ -257,6 +266,7 @@ export default class MojavePage extends VirtualPage{
                 });
 
                 items.push({
+                    gaLabel: "exchange_buy_orders",
                     hasVar: "hasACNBuyOrders",
                     title: "ACN Buy Orders",
                     subtitle: "Auto-buy at specified prices",
@@ -269,6 +279,7 @@ export default class MojavePage extends VirtualPage{
                 });
                 
                 items.push({
+                    gaLabel: "exchange_sell_orders",
                     hasVar: "hasACNSellOrders",
                     title: "ACN Sell Orders",
                     subtitle: "Auto-sell at specified prices",
@@ -335,6 +346,7 @@ export default class MojavePage extends VirtualPage{
         rowDiv.on("click", () => {
             Wallet.TryBuy<MojaveSharedDataKeys>(item.hasVar, item.price, item.symbol).then(() => {
                 item.action();
+                GA.Event(GA.Events.DoorsBuy, {label: item.gaLabel});
                 this.UpdateItems();
             });
         });

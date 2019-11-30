@@ -6,6 +6,7 @@ import { AllIcons, IconDescriptor } from "../../../Core/Icons";
 import { OS } from "../../../OS/OS";
 import { Wallet } from "../../Crypto/Wallet";
 import Miner, { BoostItem } from "../../Crypto/Miner";
+import GA from "../../../Core/GA";
 
 class ShopItem{
     track: number;
@@ -28,6 +29,10 @@ export default class AlphaWolfPage extends VirtualPage{
         super();
 
         this.mainSymbol = "ACN";
+    }
+
+    public GetURL(): string {
+        return "www.alphawolf.org";
     }
 
     public MatchesAddress(address: string): boolean{
@@ -295,6 +300,7 @@ export default class AlphaWolfPage extends VirtualPage{
         
             let hasVar = this.GetUpgradeName(track, trackNumber);
             OS.setSharedData(hasVar, true);
+            GA.Event(GA.Events.AlphaWolfBuy, {label: track + "_" + trackNumber});
         }
         
         boostObj.symbol = this.mainSymbol;

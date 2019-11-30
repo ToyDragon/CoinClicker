@@ -14,6 +14,7 @@ import CoalPage from "./VirtualPages/Coal";
 import DebugPage from "./VirtualPages/Debug";
 import DoorsPage from "./VirtualPages/Doors";
 import Utils from "../../Core/Utils";
+import GA from "../../Core/GA";
 
 export default class Browser extends App<{}>{
     public prevtarget: string;
@@ -52,7 +53,9 @@ export default class Browser extends App<{}>{
             width: 500,
             height: 500,
             icon: AllIcons.Browser,
-            title: "Web Browser"
+            title: "Web Browser",
+            openEvent: GA.Events.BrowserOpen,
+            closeEvent: GA.Events.BrowserClose
         });
 
         const contentRef = React.createRef<HTMLDivElement>();
@@ -115,6 +118,7 @@ export default class Browser extends App<{}>{
         if(this.activePage){
             console.log("Found page to render");
         }else{
+            GA.Event(GA.Events.BrowserNavigate, {label: this.activePage.GetURL()})
             console.log("No page found for \"" + target + "\"");
         }
     }

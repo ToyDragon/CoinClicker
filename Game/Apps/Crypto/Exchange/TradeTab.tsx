@@ -9,6 +9,7 @@ import { ObservableComponent } from "../../../Core/Observable";
 import { OS } from "../../../OS/OS";
 import { MojaveSharedDataKeys } from "../../Browser/VirtualPages/Mojave";
 import LoadingBarWidget, { TriggerPoint } from "../../../OS/Widgets/LoadingBar";
+import GA from "../../../Core/GA";
 
 interface TradeTabEvents{
     autosellChanged;
@@ -95,6 +96,15 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
         Wallet.AllWallets[this.props.symbol].ChangeValue(-sellQty);
         
         this.inputSellQuantity.current.SetValue("0");
+        Exchange.totalACNSold += sellQty;
+        Exchange.totalCSHEarned += sellAmt;
+        GA.Event(GA.Events.ExchangeManualSell, {
+            value: sellQty,
+            metrics: {
+                TotalACNSold: Exchange.totalACNSold,
+                TotalCSHEarned: Exchange.totalCSHEarned
+            }
+        });
     }
 
     private buyConfirmed(): void{
@@ -112,6 +122,15 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
         Wallet.AllWallets[this.props.symbol].ChangeValue(buyQty);
         
         this.inputBuyQuantity.current.SetValue("0");
+        Exchange.totalACNPurchased += buyQty;
+        Exchange.totalCSHSpent += buyAmt;
+        GA.Event(GA.Events.ExchangeManualBuy, {
+            value: buyAmt,
+            metrics: {
+                TotalACNPurchased: Exchange.totalACNPurchased,
+                TotalCSHSpent: Exchange.totalCSHSpent
+            }
+        });
     }
 
     public getAutoSellEnabled(): boolean{
@@ -132,11 +151,13 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
     private disableAutoSell(): void{
         this.autosellEnabled = false;
         this.autosellChanged();
+        GA.Event(GA.Events.ExchangeDisableAutoSell);
     }
 
     private enableAutoSell(): void{
         this.autosellEnabled = true;
         this.autosellChanged();
+        GA.Event(GA.Events.ExchangeEnableAutoSell);
     }
 
     private autosellChanged(): void{

@@ -12,6 +12,10 @@ export default class NoPageFoundPage extends VirtualPage{
         return true;
     }
 
+    public GetURL(): string {
+        return "www.notfound.oops";
+    }
+
     public Render(contentDiv: JQuery): void{
         ReactDom.render(
         [

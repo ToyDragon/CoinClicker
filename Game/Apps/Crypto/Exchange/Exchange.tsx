@@ -11,6 +11,7 @@ import SliderWidget from "../../../OS/Widgets/Slider";
 import { OS } from "../../../OS/OS";
 import { TradeTab } from "./TradeTab";
 import { MojaveSharedDataKeys } from "../../Browser/VirtualPages/Mojave";
+import GA from "../../../Core/GA";
 
 export interface ExchangeOptions{
     symbol: string;
@@ -48,6 +49,11 @@ export default class Exchange extends App<Events>{
     private static PointNum: number = 120;
     public static TickDelay: number = 5000;
     public static LastTick: number = -1;
+
+    public static totalACNPurchased = 0;
+    public static totalACNSold = 0;
+    public static totalCSHEarned = 0;
+    public static totalCSHSpent = 0;
 
     public static TickExchanges(): void{
         for(let exchange of this.AllExchanges){
@@ -140,7 +146,7 @@ export default class Exchange extends App<Events>{
         if(this.windowObj){
             this.UpdateCanvas();
         }
-        if(this.tradeTab.current){
+        if(this.tradeTab && this.tradeTab.current){
             if(!this.tradeTab.current.getAutoSellEnabled()){
                 this.CheckOrders();
             }else{
@@ -169,17 +175,35 @@ export default class Exchange extends App<Events>{
     private CheckOrders(): void{
         if(this.buyOrder && this.buyOrder.amount >= this.rate){
             Wallet.AllWallets[this.symbol].ChangeValue(this.buyOrder.quantity);
-            const total = Utils.DisplayNumber(this.buyOrder.quantity * this.buyOrder.amount);
-            OS.MakeToast("Buy order completed for " + Utils.DisplayNumber(this.buyOrder.quantity) + " " + this.symbol + " for a total of " + total + " CSH.");
+            const total = this.buyOrder.quantity * this.buyOrder.amount;
+            OS.MakeToast("Buy order completed for " + Utils.DisplayNumber(this.buyOrder.quantity) + " " + this.symbol + " for a total of " + Utils.DisplayNumber(total) + " CSH.");
+            Exchange.totalACNPurchased += this.buyOrder.quantity;
+            Exchange.totalCSHSpent += total;
             this.buyOrder = null;
             this.trigger("orderCompleted");
+            GA.Event(GA.Events.ExchangeCompleteBuyOrder, {
+                value: this.buyOrder.quantity,
+                metrics: {
+                    TotalACNPurchased: Exchange.totalACNPurchased,
+                    TotalCSHSpent: Exchange.totalCSHSpent
+                }
+            });
         }
         if(this.sellOrder && this.sellOrder.amount <= this.rate){
             const total = this.sellOrder.quantity * this.sellOrder.amount;
             Wallet.AllWallets["CSH"].ChangeValue(total);
             OS.MakeToast("Sell order completed for " + Utils.DisplayNumber(this.sellOrder.quantity) + " " + this.symbol + " for a total of " + Utils.DisplayNumber(total) + " CSH.");
+            Exchange.totalACNSold += this.sellOrder.quantity;
+            Exchange.totalCSHEarned += total;
             this.sellOrder = null;
             this.trigger("orderCompleted");
+            GA.Event(GA.Events.ExchangeCompleteSellOrder, {
+                value: this.sellOrder.quantity,
+                metrics: {
+                    TotalACNSold: Exchange.totalACNSold,
+                    TotalCSHEarned: Exchange.totalCSHEarned
+                }
+            });
         }
     }
 
@@ -392,7 +416,9 @@ export default class Exchange extends App<Events>{
             innerHeight: 450,
             resizable: false,
             icon: this.icon,
-            title: Wallet.AllWallets[this.symbol].name + " Exchange"
+            title: Wallet.AllWallets[this.symbol].name + " Exchange",
+            openEvent: GA.Events.ExchangeOpen,
+            closeEvent: GA.Events.ExchangeClose
         });
 
         this.windowObj.on("close", () => {
@@ -542,7 +568,9 @@ export default class Exchange extends App<Events>{
             ]
         , mainDiv[0]);
 
-        Utils.SetupTabStrip(tabstripRef.current);
+        Utils.SetupTabStrip(tabstripRef.current, (tabName: string) => {
+            GA.Event(GA.Events.ExchangeChangeTab, {label: tabName});
+        });
 
         OS.on<MojaveSharedDataKeys>("hasACNSellOrders", () => { this.updateVisibleSections(); });
         OS.on<MojaveSharedDataKeys>("hasACNBuyOrders", () => { this.updateVisibleSections(); });
@@ -560,6 +588,7 @@ export default class Exchange extends App<Events>{
                 const total = this.buyOrder.amount * this.buyOrder.quantity;
                 Wallet.AllWallets["CSH"].ChangeValue(total);
                 this.buyOrder = null;
+                GA.Event(GA.Events.ExchangeCancelBuyOrder, {value: this.buyOrder.quantity});
             }else{
                 this.buyOrder = {
                     amount: buyOrderAmountRef.current.GetValue(),
@@ -567,6 +596,7 @@ export default class Exchange extends App<Events>{
                 };
                 const total = this.buyOrder.amount * this.buyOrder.quantity;
                 Wallet.AllWallets["CSH"].ChangeValue(-total);
+                GA.Event(GA.Events.ExchangePlaceBuyOrder, {value: this.buyOrder.quantity});
             }
 
             updateDisplayedBuySection();
@@ -580,12 +610,14 @@ export default class Exchange extends App<Events>{
             if(!place){
                 Wallet.AllWallets[this.symbol].ChangeValue(this.sellOrder.quantity);
                 this.sellOrder = null;
+                GA.Event(GA.Events.ExchangeCancelSellOrder, {value: this.sellOrder.quantity});
             }else{
                 this.sellOrder = {
                     amount: sellOrderAmountRef.current.GetValue(),
                     quantity: Number(sellOrderQuantityRef.current.GetValue())
                 };
                 Wallet.AllWallets[this.symbol].ChangeValue(-this.sellOrder.quantity);
+                GA.Event(GA.Events.ExchangePlaceSellOrder, {value: this.sellOrder.quantity});
             }
 
             updateDisplayedSellSection();

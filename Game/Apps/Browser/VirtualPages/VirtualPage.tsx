@@ -1,13 +1,11 @@
 import Observable from "../../../Core/Observable";
 
-export default class VirtualPage extends Observable<{}>{
+export default abstract class VirtualPage extends Observable<{}>{
     public constructor(){
         super();
     }
 
-    public GetURL(): string{
-        return "";
-    }
+    public abstract GetURL(): string;
 
     public MatchesAddress(address: string): boolean{
         return false;

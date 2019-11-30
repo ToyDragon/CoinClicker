@@ -29,16 +29,19 @@ export default class Utils{
 		return name;
     }
 
-    public static SetupTabStrip(rootEle: HTMLDivElement): void{
+    public static SetupTabStrip(rootEle: HTMLDivElement, changeCB?: (tabName: string) => void): void{
         const jRoot = $(rootEle);
         jRoot.find("> .tabstrip > .tab").on("click", (e) => {
             let ele = $(e.target);
             if(!ele.hasClass("active")){
                 jRoot.find("> .tabstrip > .tab").removeClass("active");
                 ele.addClass("active");
-                let name = ele.attr("data-tabname");
+				let name = ele.attr("data-tabname");
                 jRoot.find("> .tabContent").addClass("nodisp");
                 jRoot.find("> .tabContent[data-tabname=" + name + "]").removeClass("nodisp");
+				if(changeCB){
+					changeCB(name);
+				}
             }
         });
     }

@@ -13,6 +13,7 @@ import { OS } from "../../OS/OS";
 import Utils from "../../Core/Utils";
 import Widget from "../../OS/Widgets/Widget";
 import Browser from "../Browser/WebBrowser";
+import GA from "../../Core/GA";
 
 export interface BoostItem{
     blockMultiplier?: number;
@@ -62,13 +63,18 @@ export default class Miner extends App<MinerEvents>{
     public time: number;
     public icon: IconDescriptor;
 
+    private totalMined: number = 0;
+    private minedSinceLastEvent: number = 0;
+    private eventTimer: NodeJS.Timeout;
     private boostedOptions: MinerOptions;
     private loadingBar: LoadingBarWidget;
     private bonusDetails: React.RefObject<BonusDetails>;
 
     public constructor(options: MinerOptions){
         super();
-		
+        
+        this.eventTimer = setInterval(() => {this.LogEvent(); }, 2500);
+
 		Miner.AmtMinersByTitle[options.title] = (Miner.AmtMinersByTitle[options.title] || 1);
 		var amt = Miner.AmtMinersByTitle[options.title]++;
 		var newTitle = options.title;
@@ -117,6 +123,8 @@ export default class Miner extends App<MinerEvents>{
         this.boostedOptions = this.ApplyBoosts();
         
         Wallet.AllWallets[this.symbol].ChangeValue(this.boostedOptions.value);
+        this.totalMined += this.boostedOptions.value;
+        this.minedSinceLastEvent += this.boostedOptions.value;
         
         this.loadingBar.totalDuration = this.boostedOptions.time;
         this.loadingBar.UpdateTriggerPoints([
@@ -133,13 +141,29 @@ export default class Miner extends App<MinerEvents>{
         }
     }
 
+    private LogEvent(): void{
+        if(this.minedSinceLastEvent > 0){
+            this.minedSinceLastEvent = 0;
+
+            GA.Event(GA.Events.MinerMine, {
+                value: this.minedSinceLastEvent,
+                metrics: {
+                    TotalACNMined: this.totalMined
+                }
+            })
+        }
+    }
+
     public CreateWindow(): void{
         this.windowObj = new WebosWindow({
             width: 400,
             height: 189,
             resizable: false,
             icon: this.icon,
-            title: this.title
+            title: this.title,
+            closeWarning: "Miners only mine while open, are you sure you want to close?",
+            openEvent: GA.Events.MinerOpen,
+            closeEvent: GA.Events.MinerClose
         });
         
         var newOptions = this.ApplyBoosts();
@@ -242,9 +266,11 @@ class BonusDetails extends Widget<BonusDetailsOptions, BonusDetailsEvents>{
         if(this.divUpgradeSection.current){
             if(this.divUpgradeSection.current.className === ""){
                 this.divUpgradeSection.current.className = "nodisp";
+                GA.Event(GA.Events.MinerCollapseDetails);
                 return false;
                 
             }else{
+                GA.Event(GA.Events.MinerExpandDetails);
                 this.divUpgradeSection.current.className = "";
                 return true;
             }
