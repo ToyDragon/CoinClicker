@@ -14,6 +14,7 @@ import Utils from "../../Core/Utils";
 import Widget from "../../OS/Widgets/Widget";
 import Browser from "../Browser/WebBrowser";
 import GA from "../../Core/GA";
+import { IHasSaveData } from "../../OS/StateController";
 
 export interface BoostItem{
     blockMultiplier?: number;
@@ -63,9 +64,25 @@ export default class Miner extends App<MinerEvents>{
     public time: number;
     public icon: IconDescriptor;
 
-    private totalMined: number = 0;
-    private minedSinceLastEvent: number = 0;
-    private eventTimer: NodeJS.Timeout;
+    //totalMined stored in OS
+    public static totalMined: number = 0;
+
+    private static minedSinceLastEvent: number = 0;
+    private static eventTimer: NodeJS.Timeout;
+
+    private static LogEvent(): void{
+        if(this.minedSinceLastEvent > 0){
+            this.minedSinceLastEvent = 0;
+
+            GA.Event(GA.Events.MinerMine, {
+                value: this.minedSinceLastEvent,
+                metrics: {
+                    TotalACNMined: Miner.totalMined
+                }
+            });
+        }
+    }
+
     private boostedOptions: MinerOptions;
     private loadingBar: LoadingBarWidget;
     private bonusDetails: React.RefObject<BonusDetails>;
@@ -73,7 +90,9 @@ export default class Miner extends App<MinerEvents>{
     public constructor(options: MinerOptions){
         super();
         
-        this.eventTimer = setInterval(() => {this.LogEvent(); }, 2500);
+        if(!Miner.eventTimer){
+            Miner.eventTimer = setInterval(() => {Miner.LogEvent(); }, 2500);
+        }
 
 		Miner.AmtMinersByTitle[options.title] = (Miner.AmtMinersByTitle[options.title] || 1);
 		var amt = Miner.AmtMinersByTitle[options.title]++;
@@ -123,8 +142,8 @@ export default class Miner extends App<MinerEvents>{
         this.boostedOptions = this.ApplyBoosts();
         
         Wallet.AllWallets[this.symbol].ChangeValue(this.boostedOptions.value);
-        this.totalMined += this.boostedOptions.value;
-        this.minedSinceLastEvent += this.boostedOptions.value;
+        Miner.totalMined += this.boostedOptions.value;
+        Miner.minedSinceLastEvent += this.boostedOptions.value;
         
         this.loadingBar.totalDuration = this.boostedOptions.time;
         this.loadingBar.UpdateTriggerPoints([
@@ -138,19 +157,6 @@ export default class Miner extends App<MinerEvents>{
         console.log("restarting miner bar");
         if(this.bonusDetails.current){
             this.bonusDetails.current.trigger("blockDone");
-        }
-    }
-
-    private LogEvent(): void{
-        if(this.minedSinceLastEvent > 0){
-            this.minedSinceLastEvent = 0;
-
-            GA.Event(GA.Events.MinerMine, {
-                value: this.minedSinceLastEvent,
-                metrics: {
-                    TotalACNMined: this.totalMined
-                }
-            })
         }
     }
 
@@ -291,14 +297,28 @@ class BonusDetails extends Widget<BonusDetailsOptions, BonusDetailsEvents>{
         this.labelBlockTime.current.SetTitle("=" + Utils.DisplayNumber(details.blockTime) + " ms");
         
         const bonuses = (Miner.BonusesBySymbol[this.options.symbol] || []);
+        const bonusesToRemove = {};
+        for(let name in this.displayedBonuses){
+            bonusesToRemove[name] = true;
+        }
+
         let bonusDisplayed = false;
         for(let bonus of bonuses){
             if(!this.displayedBonuses[bonus.name]){
                 this.displayedBonuses[bonus.name] = true;
                 this.upgradeList.current.appendChild(this.GetBonusEle(bonus));
             }
+            bonusesToRemove[bonus.name] = false;
             bonusDisplayed = true;
         }
+
+        for(let name in bonusesToRemove){
+            if(bonusesToRemove[name]){
+                $(this.upgradeList.current).find("div[data-boostname=" + this.CleanBoostName(name) + "]").remove();
+                this.displayedBonuses[name] = false;
+            }
+        }
+
         if(bonusDisplayed){
             this.divNoUpgrades.current.className = "nodisp";
             this.upgradeList.current.className = "";
@@ -454,6 +474,7 @@ class BonusDetails extends Widget<BonusDetailsOptions, BonusDetailsEvents>{
         }
         
         const div = document.createElement("div");
+        div.setAttribute("data-boostname", this.CleanBoostName(item.name));
         ReactDom.render([
             <div key={1} style={{display:"inline-block"}}>
                 <IconWidget icon={icon.veryLarge} />
@@ -464,5 +485,9 @@ class BonusDetails extends Widget<BonusDetailsOptions, BonusDetailsEvents>{
             </div>
         ], div)
         return div;
+    }
+
+    private CleanBoostName(name: string): string{
+        return name.toLowerCase().replace(/[^a-zA-Z]/g,"");
     }
 }

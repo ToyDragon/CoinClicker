@@ -8,6 +8,7 @@ import { Wallet } from "../../Crypto/Wallet";
 import Exchange from "../../Crypto/Exchange/Exchange";
 import Miner from "../../Crypto/Miner";
 import GA from "../../../Core/GA";
+import { IHasSaveData } from "../../../OS/StateController";
 
 export interface DoorsSharedDataKeys extends SharedDataKeys{
 
@@ -24,12 +25,34 @@ class ShopItem{
     symbol: string;
 }
 
-export default class DoorsPage extends VirtualPage{
+export default class DoorsPage extends VirtualPage implements IHasSaveData{
+
+    public GetStateKey(): string {
+        return "Doors";
+    }
+    
+    public GetState(): { nState?: any; sState?: any; } {
+        return null;
+    }
+
+    public LoadState(_nState: any, _sState: any): void {
+        
+    }
+
+    public AfterStateLoaded(): void {
+        const items = this.GetAllItems();
+        for(let item of items){
+            if(OS.getSharedData(item.hasVar)){
+                item.action(item);
+            }
+        }
+    }
 
     public rootDiv: JQuery;
 
     public constructor(){
         super();
+        OS.StateController.AddTrackedObject(this);
     }
 
     public GetURL(): string {

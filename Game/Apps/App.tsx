@@ -1,5 +1,6 @@
 import Observable from "../Core/Observable";
 import WebosWindow from "../OS/Window";
+import { OS } from "../OS/OS";
 
 export default class App<K> extends Observable<K>{
     public windowObj: WebosWindow;
@@ -9,7 +10,9 @@ export default class App<K> extends Observable<K>{
     }
 
     public ActivateOrCreate(): void{
-        console.log("App clicked");
+        if(!OS.StateController.loaded){
+            throw "Creating window before initial statekeeper load.";
+        }
         if(this.windowObj){
             console.log("Activating existing window " + this.windowObj.id);
             this.windowObj.ActivateWindow(false);

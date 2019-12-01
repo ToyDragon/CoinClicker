@@ -7,6 +7,7 @@ import { OS } from "../../../OS/OS";
 import { Wallet } from "../../Crypto/Wallet";
 import Miner, { BoostItem } from "../../Crypto/Miner";
 import GA from "../../../Core/GA";
+import { IHasSaveData } from "../../../OS/StateController";
 
 class ShopItem{
     track: number;
@@ -18,19 +19,40 @@ class ShopItem{
     price: number;
     symbol: string;
     hasVar: string;
+    boost: BoostItem;
 }
 
-export default class AlphaWolfPage extends VirtualPage{
+export default class AlphaWolfPage extends VirtualPage implements IHasSaveData{
+
+    public GetStateKey(): string {
+        return "AlphaWolf";
+    }
+    public GetState(): { nState?: any; sState?: any; } {
+        return null;
+    }
+    public LoadState(_nState: any, _sState: any): void {
+        
+    }
+
+    public AfterStateLoaded(): void {
+		const items = this.GetAllItems();
+		for(let i = items.length-1; i >= 0; i--){
+			if(this.AlreadyHasItem(items[i].track, items[i].trackIndex)){
+                Miner.AddBonus(items[i].boost);
+			}
+		}
+    }
 
     public rootDiv: JQuery;
     public mainSymbol: string;
-    private blockBoostValues: number[];
-    private speedBoostValues: number[];
+    private blockBoostValues: number[] = [1.18, 1.12, 1.11, 1.19, 1.15, 1.13, 1.1, 1.14, 1.17, 1.16, 1.2];
+    private speedBoostValues: number[] = [1.17, 1.13, 1.10, 1.20, 1.14, 1.14, 1.09, 1.15, 1.16, 1.18, 1.1];
 
     public constructor(){
         super();
 
         this.mainSymbol = "ACN";
+        OS.StateController.AddTrackedObject(this);
     }
 
     public GetURL(): string {
@@ -156,9 +178,6 @@ export default class AlphaWolfPage extends VirtualPage{
         ]
         , contentDiv[0]);
 
-        this.blockBoostValues = [1.18, 1.12, 1.11, 1.19, 1.15, 1.13, 1.1, 1.14, 1.17, 1.16, 1.2];
-        this.speedBoostValues = this.blockBoostValues.reverse();
-
         this.rootDiv = $(rootRef.current);
         this.UpdateItems();
     }
@@ -274,13 +293,14 @@ export default class AlphaWolfPage extends VirtualPage{
 			if(track){
                 item.title = boostNames[trackIndex];
                 item.subtitle = this.GetBlockDisplay(boostVal);
-                item.action = this.CreateTryBuyUpgrade(track, trackIndex, price, {name: item.title, blockMultiplier: boostVal});
+                item.boost = {name: item.title, symbol: this.mainSymbol, blockMultiplier: boostVal};
 			} else {
                 item.title = speedNames[trackIndex];
                 item.subtitle = this.GetSpeedDisplay(boostVal); 
-                item.action = this.CreateTryBuyUpgrade(track, trackIndex, price, {name: item.title, speedBoost: boostVal});
+                item.boost = {name: item.title, symbol: this.mainSymbol, speedBoost: boostVal};
 			}
 			
+            item.action = this.CreateTryBuyUpgrade(track, trackIndex, price, item.boost);
 			item.track = track;
 			item.trackIndex = trackIndex;
 			item.icon = track ? AllIcons.ComputerBoardPower : AllIcons.ComputerBoardSpeed;
@@ -301,15 +321,13 @@ export default class AlphaWolfPage extends VirtualPage{
             }
         
             var cshWallet = Wallet.AllWallets["CSH"];
-            if(cshWallet.amount < price) return;
+            if(cshWallet.GetAmount() < price) return;
             cshWallet.ChangeValue(-price);
         
             let hasVar = this.GetUpgradeName(track, trackNumber);
-            OS.setSharedData(hasVar, true);
+            OS.setSharedData(hasVar, "1");
             GA.Event(GA.Events.AlphaWolfBuy, {label: track + "_" + trackNumber});
         }
-        
-        boostObj.symbol = this.mainSymbol;
         Miner.AddBonus(boostObj);
         
         this.UpdateItems();

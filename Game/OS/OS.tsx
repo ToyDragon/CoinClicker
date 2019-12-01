@@ -11,11 +11,13 @@ import ContextMenu from "./ContextMenu";
 import Taskbar from "./Taskbar";
 import { EmailApp } from "../Apps/General/Email";
 import { AboutApp } from "../Apps/General/About";
-import App from "../Apps/App"
+import App from "../Apps/App";
+import StateController from "./StateController";
+import Miner from "../Apps/Crypto/Miner";
 
 /* Base class for all shared data keys just to help restrict the intellisense */
 export interface SharedDataKeys{
-	__shiboleth: any;
+	__shiboleth: any; //TODO why did I add this?
 }
 
 export class OS{
@@ -26,6 +28,7 @@ export class OS{
 	public static EmailApp: EmailApp;
 	public static PickaxeApp: Pickaxe;
 	public static AboutApp: AboutApp;
+	public static StateController: StateController;
 
 	private static SharedData: {[value: string]: any} = {};
 	public static SharedDataEventHandlers: {[key: string]: Function[]} = {};
@@ -38,13 +41,13 @@ export class OS{
 		return OS.SharedData[key as string];
 	}
 
-	public static setSharedData(key: string, value?: any): void;
-	public static setSharedData<Keys extends SharedDataKeys>(key: keyof Keys, value?: any): void;
+	public static setSharedData(key: string, value?: string): void;
+	public static setSharedData<Keys extends SharedDataKeys>(key: keyof Keys, value?: string): void;
 	public static setSharedData<Keys extends SharedDataKeys, K extends keyof Keys>(key: K, value?: Keys[K]): void;
 
 	public static setSharedData<Keys extends SharedDataKeys, K extends keyof Keys>(key: K | string, value?: any): void{
 		if(typeof(value) === "undefined"){
-			value = true;
+			value = "1";
 		}
 		OS.SharedData[key as string] = value;
 		const handlers = OS.SharedDataEventHandlers[key as string];
@@ -63,22 +66,52 @@ export class OS{
 	}
 
 	public static init(root: HTMLElement): void{
+		OS.StateController = new StateController();
 		OS.InitUI(root);
 		OS.InitDesktopItems();
 		Taskbar.Init();
 		WebosWindow.Init();
 
-		// Wallet.AnimatedAdd("CSH", 80, 20, 250).then(() => {
-		// 	Wallet.AnimatedAdd("CSH", 15, 5, 350).then(() => {
-		// 		Wallet.AnimatedAdd("CSH", 5, 1, 450);
-		// 	});
-		// });
+		OS.StateController.AddTrackedObject({
+			AfterStateLoaded: () => { },
+			GetState: () => {
+				let sState = {
+					TotalACNMined: Miner.totalMined,
+					SharedData: {}
+				};
+				for(let key in OS.SharedData){
+					sState.SharedData[key] = OS.SharedData[key];
+				}
+				return {
+					sState: sState
+				}
+			},
+			GetStateKey: () => { return "SharedData"; },
+			LoadState: (_nState: any, sState: any) => {
+				if(sState){
+					if(sState.SharedData){
+						for(let key in sState.SharedData){
+							OS.SharedData[key] = sState.SharedData[key];
+						}
+					}
+					Miner.totalMined = Number(sState.TotalACNMined);
+				}
+			}
+			
+		});
+
+		OS.StateController.LoadData();
 
 		OS.WalletApp.ActivateOrCreate();
 		OS.EmailApp.ActivateOrCreate();
-		// Wallet.AnimatedAdd("ACN", 4, 2, 200).then(() => {
-		// 	Wallet.AnimatedAdd("ACN", 6, 1, 600);
-		// });
+
+		window.onbeforeunload = () => {
+			OS.StateController.SaveData();
+		}
+
+		setInterval(() => {
+			OS.StateController.SaveData();
+		}, 10000);
 	}
 
 	public static MakeToast(text: string): void{
@@ -159,67 +192,6 @@ export class OS{
 			icon: AllIcons.Garbage,
 		});
 		OS.RootFolder.AddItem(recyclingBin.item);
-
-		/*
-		//Routine based miners
-		var minerFolder = folder.createFolder({
-			title: "Miners"
-		});
-		rootFolder.addItem(minerFolder.item);
-
-		var simpleAMiner = miner.createMiner({name : "A (Jenkins)"});
-		minerFolder.addItem(simpleAMiner.item);
-
-		var routineFolder = folder.createFolder({
-			title: "Routines"
-		});
-		rootFolder.addItem(routineFolder.item);
-		*/
-
-		/*
-		//Routine stuff
-		var jumpItem = folder.createItem({
-			title: "Routine- Jump",
-			icon: core.icons.code,
-			click: activateOrCreateRoutineEditorJump
-		});
-		routineFolder.addItem(jumpItem);
-
-		var varsItem = folder.createItem({
-			title: "Routine- Vars",
-			icon: core.icons.code,
-			click: activateOrCreateRoutineEditorVars
-		});
-		routineFolder.addItem(varsItem);
-
-		var fibItem = folder.createItem({
-			title: "Routine- Fib",
-			icon: core.icons.code,
-			click: activateOrCreateRoutineEditorFib
-		});
-		routineFolder.addItem(fibItem);
-
-		var promptsItem = folder.createItem({
-			title: "Routine- Prompts",
-			icon: core.icons.code,
-			click: activateOrCreateRoutineEditorPromps
-		});
-		routineFolder.addItem(promptsItem);
-		*/
-
-		/*
-		//RPG testing prompts
-		createDesktopItem({
-			title: "New Adventurer",
-			icon: core.icons.knight,
-			click: activateOrCreateNewCharacter
-		});
-		createDesktopItem({
-			title: "Tile Test",
-			icon: core.icons.combat,
-			click: activateOrCreateTileTest
-		});
-		*/
 
 		OS.WalletApp = new WalletApp();
 

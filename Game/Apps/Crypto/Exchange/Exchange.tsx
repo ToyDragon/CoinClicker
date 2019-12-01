@@ -12,6 +12,7 @@ import { OS } from "../../../OS/OS";
 import { TradeTab } from "./TradeTab";
 import { MojaveSharedDataKeys } from "../../Browser/VirtualPages/Mojave";
 import GA from "../../../Core/GA";
+import { IHasSaveData } from "../../../OS/StateController";
 
 export interface ExchangeOptions{
     symbol: string;
@@ -42,7 +43,35 @@ interface Events{
     orderCompleted;
 }
 
-export default class Exchange extends App<Events>{
+export default class Exchange extends App<Events> implements IHasSaveData{
+
+    public GetStateKey(): string {
+        return "Exchange"
+    }
+    
+    public GetState(): { nState?: any; sState?: any; } {
+        return {
+            sState: this.sState,
+            nState: this.nState
+        }
+    }
+
+    public LoadState(nState: any, sState: any): void {
+        if(nState){
+            for(let key in nState){
+                this.nState[key] = nState[key];
+            }
+        }
+        if(sState){
+            for(let key in sState){
+                this.sState[key] = sState[key];
+            }
+        }
+    }
+    
+    public AfterStateLoaded(): void {
+        
+    }
 
     public static Ticker: NodeJS.Timeout;
     public static AllExchanges: Exchange[] = [];
@@ -67,16 +96,9 @@ export default class Exchange extends App<Events>{
     public canvas: HTMLCanvasElement;
     public width: number;
     public height: number;
-    public rate: number;
-    public hist: HistoryItem[];
-    public tickCount: number;
-    public eventType: number;
-    public eventTicks: number;
-    public eventBase: number;
+
     public blessingBar: number;
     public disasterBar: number;
-    public start: Date;
-
     public symbol: string;
     public icon: IconDescriptor;
     public initialrate: number;
@@ -91,15 +113,28 @@ export default class Exchange extends App<Events>{
     private autosellEventTimout: NodeJS.Timeout;
     private autoSellEventQty: number = 0;
 
-    private buyOrder: BuySellOrder | null;
-    private sellOrder: BuySellOrder | null;
-
     private divBuyOrderTab: React.RefObject<HTMLDivElement>;
     private divSellOrderTab: React.RefObject<HTMLDivElement>;
     private tradeTab: React.RefObject<TradeTab>;
 
+    public nState = {
+        buyOrder: null as BuySellOrder,
+        sellOrder: null as BuySellOrder,
+        eventBase: 0,
+        eventTicks: 0,
+        eventType: 0,
+        tickCount: 0,
+        rate: 0,
+        hist: [] as HistoryItem[]
+    };
+
+    public sState = {
+        autosellEnabled: "1"
+    };
+
     public constructor(options: ExchangeOptions){
         super();
+        OS.StateController.AddTrackedObject(this);
 
         this.title = options.symbol + " Exchange";
         this.symbol = options.symbol;
@@ -115,9 +150,8 @@ export default class Exchange extends App<Events>{
         this.blessingLength = options.blessingLength;
         this.blessingBar = 1-Math.pow(0.9,1/options.blessingRate);
 		
-		this.start = new Date();
-		this.tickCount = 0;
-        this.hist = [];
+		//this.start = new Date();
+        //this.nState.hist = [];
         
         this.width = 500;
         this.height = 300;
@@ -129,7 +163,7 @@ export default class Exchange extends App<Events>{
             }, Exchange.TickDelay);
         }
 
-        this.rate = this.initialrate;
+        this.nState.rate = this.initialrate;
         for(let i = 0; i < 200; i++){
             this.TickExchange();
         }
@@ -179,12 +213,12 @@ export default class Exchange extends App<Events>{
             return;
         }
 
-        let sellQty = Wallet.AllWallets[this.symbol].amount;
+        let sellQty = Wallet.AllWallets[this.symbol].GetAmount();
         if(isNaN(sellQty) || sellQty < 0.01){
             return;
         }
 
-        let sellAmt = sellQty * this.rate;
+        let sellAmt = sellQty * this.nState.rate;
 
         Wallet.AllWallets["CSH"].ChangeValue(sellAmt);
         Wallet.AllWallets[this.symbol].ChangeValue(-sellQty);
@@ -194,32 +228,32 @@ export default class Exchange extends App<Events>{
     }
 
     private CheckOrders(): void{
-        if(this.buyOrder && this.buyOrder.amount >= this.rate){
-            Wallet.AllWallets[this.symbol].ChangeValue(this.buyOrder.quantity);
-            const total = this.buyOrder.quantity * this.buyOrder.amount;
-            OS.MakeToast("Buy order completed for " + Utils.DisplayNumber(this.buyOrder.quantity) + " " + this.symbol + " for a total of " + Utils.DisplayNumber(total) + " CSH.");
-            Exchange.totalACNPurchased += this.buyOrder.quantity;
+        if(this.nState.buyOrder && this.nState.buyOrder.amount >= this.nState.rate){
+            Wallet.AllWallets[this.symbol].ChangeValue(this.nState.buyOrder.quantity);
+            const total = this.nState.buyOrder.quantity * this.nState.buyOrder.amount;
+            OS.MakeToast("Buy order completed for " + Utils.DisplayNumber(this.nState.buyOrder.quantity) + " " + this.symbol + " for a total of " + Utils.DisplayNumber(total) + " CSH.");
+            Exchange.totalACNPurchased += this.nState.buyOrder.quantity;
             Exchange.totalCSHSpent += total;
-            this.buyOrder = null;
+            this.nState.buyOrder = null;
             this.trigger("orderCompleted");
             GA.Event(GA.Events.ExchangeCompleteBuyOrder, {
-                value: this.buyOrder.quantity,
+                value: this.nState.buyOrder.quantity,
                 metrics: {
                     TotalACNPurchased: Exchange.totalACNPurchased,
                     TotalCSHSpent: Exchange.totalCSHSpent
                 }
             });
         }
-        if(this.sellOrder && this.sellOrder.amount <= this.rate){
-            const total = this.sellOrder.quantity * this.sellOrder.amount;
+        if(this.nState.sellOrder && this.nState.sellOrder.amount <= this.nState.rate){
+            const total = this.nState.sellOrder.quantity * this.nState.sellOrder.amount;
             Wallet.AllWallets["CSH"].ChangeValue(total);
-            OS.MakeToast("Sell order completed for " + Utils.DisplayNumber(this.sellOrder.quantity) + " " + this.symbol + " for a total of " + Utils.DisplayNumber(total) + " CSH.");
-            Exchange.totalACNSold += this.sellOrder.quantity;
+            OS.MakeToast("Sell order completed for " + Utils.DisplayNumber(this.nState.sellOrder.quantity) + " " + this.symbol + " for a total of " + Utils.DisplayNumber(total) + " CSH.");
+            Exchange.totalACNSold += this.nState.sellOrder.quantity;
             Exchange.totalCSHEarned += total;
-            this.sellOrder = null;
+            this.nState.sellOrder = null;
             this.trigger("orderCompleted");
             GA.Event(GA.Events.ExchangeCompleteSellOrder, {
-                value: this.sellOrder.quantity,
+                value: this.nState.sellOrder.quantity,
                 metrics: {
                     TotalACNSold: Exchange.totalACNSold,
                     TotalCSHEarned: Exchange.totalCSHEarned
@@ -229,41 +263,41 @@ export default class Exchange extends App<Events>{
     }
 
     private TickExchange(): void{
-		this.tickCount++;
+		this.nState.tickCount++;
 		var rateMultiplier = 1;
 		
-		if(this.eventTicks > 0){
-			this.eventTicks--;
-			rateMultiplier = this.eventBase + (Math.random() - 0.5)/40;
+		if(this.nState.eventTicks > 0){
+			this.nState.eventTicks--;
+			rateMultiplier = this.nState.eventBase + (Math.random() - 0.5)/40;
 		}else{
             rateMultiplier = 1 + (Math.random() - 0.5)/40;
 
-			this.eventType = 0;
+			this.nState.eventType = 0;
             const log2Constant = Math.log(2);
 			const log2 = (a: number) => { return Math.log(a)/log2Constant; };
 			
-			let powDiff = log2(this.rate) - log2(this.initialrate);
+			let powDiff = log2(this.nState.rate) - log2(this.initialrate);
             let eventRate = Math.pow(0.7, Math.abs(powDiff));
             let val = Math.random();
             if(powDiff != 0 && val > eventRate){ 
-                this.eventBase = Math.pow(1.04, -powDiff + (Math.random()-0.5)/40);
-                this.eventTicks = Math.round(Math.random() * 10) + 20;
-                this.eventType = this.eventBase > 1 ? 1 : -1;
+                this.nState.eventBase = Math.pow(1.04, -powDiff + (Math.random()-0.5)/40);
+                this.nState.eventTicks = Math.round(Math.random() * 10) + 20;
+                this.nState.eventType = this.nState.eventBase > 1 ? 1 : -1;
             }else{
-                this.eventBase = rateMultiplier;
-                this.eventTicks = Math.round(Math.random() * 5) + 5;
-                this.eventType = 0;
+                this.nState.eventBase = rateMultiplier;
+                this.nState.eventTicks = Math.round(Math.random() * 5) + 5;
+                this.nState.eventType = 0;
             }
         }
         
-		this.rate *= rateMultiplier;
-		this.hist.push({
-			rate: this.rate,
+		this.nState.rate *= rateMultiplier;
+		this.nState.hist.push({
+			rate: this.nState.rate,
 			goodness: rateMultiplier,
-			eventType: this.eventType
+			eventType: this.nState.eventType
 		});
-		if(this.hist.length > 1000){
-			this.hist.shift();
+		if(this.nState.hist.length > 1000){
+			this.nState.hist.shift();
 		}
         this.trigger("tick");
     }
@@ -302,12 +336,12 @@ export default class Exchange extends App<Events>{
         var displayedCount = 0;
         var maxVal = -1;
         var minVal = -1;
-        for(var i = this.hist.length-1; i >= 0 && displayedCount < Exchange.PointNum; i--){
+        for(var i = this.nState.hist.length-1; i >= 0 && displayedCount < Exchange.PointNum; i--){
             displayedCount++;
-            displayedHist.push(this.hist[i]);
-            var val = this.hist[i].rate;
-            if(i == this.hist.length-1 || val > maxVal) maxVal = val;
-            if(i == this.hist.length-1 || val < minVal) minVal = val;
+            displayedHist.push(this.nState.hist[i]);
+            var val = this.nState.hist[i].rate;
+            if(i == this.nState.hist.length-1 || val > maxVal) maxVal = val;
+            if(i == this.nState.hist.length-1 || val < minVal) minVal = val;
         }
         
         var boxXPos = [];
@@ -513,7 +547,7 @@ export default class Exchange extends App<Events>{
                 <div key="2" className="exchangeBottom">
                     <div className="rateSections">
                         <div className="rateSection">
-                            <div className="rateDisplay" title={"value of each "+this.symbol+" coin right now"} ref={curRateRef}>{Utils.DisplayNumber(this.rate)} CSH</div>
+                            <div className="rateDisplay" title={"value of each "+this.symbol+" coin right now"} ref={curRateRef}>{Utils.DisplayNumber(this.nState.rate)} CSH</div>
                             <div className="rateLabel" title={"value of each "+this.symbol+" coin right now"}>Current Rate</div>
                         </div>
                         <div className="rateSection">
@@ -606,18 +640,18 @@ export default class Exchange extends App<Events>{
             }
 
             if(!place){
-                const total = this.buyOrder.amount * this.buyOrder.quantity;
+                const total = this.nState.buyOrder.amount * this.nState.buyOrder.quantity;
                 Wallet.AllWallets["CSH"].ChangeValue(total);
-                this.buyOrder = null;
-                GA.Event(GA.Events.ExchangeCancelBuyOrder, {value: this.buyOrder.quantity});
+                this.nState.buyOrder = null;
+                GA.Event(GA.Events.ExchangeCancelBuyOrder, {value: this.nState.buyOrder.quantity});
             }else{
-                this.buyOrder = {
+                this.nState.buyOrder = {
                     amount: buyOrderAmountRef.current.GetValue(),
                     quantity: Number(buyOrderQuantityRef.current.GetValue())
                 };
-                const total = this.buyOrder.amount * this.buyOrder.quantity;
+                const total = this.nState.buyOrder.amount * this.nState.buyOrder.quantity;
                 Wallet.AllWallets["CSH"].ChangeValue(-total);
-                GA.Event(GA.Events.ExchangePlaceBuyOrder, {value: this.buyOrder.quantity});
+                GA.Event(GA.Events.ExchangePlaceBuyOrder, {value: this.nState.buyOrder.quantity});
             }
 
             updateDisplayedBuySection();
@@ -629,31 +663,31 @@ export default class Exchange extends App<Events>{
             }
 
             if(!place){
-                Wallet.AllWallets[this.symbol].ChangeValue(this.sellOrder.quantity);
-                this.sellOrder = null;
-                GA.Event(GA.Events.ExchangeCancelSellOrder, {value: this.sellOrder.quantity});
+                Wallet.AllWallets[this.symbol].ChangeValue(this.nState.sellOrder.quantity);
+                this.nState.sellOrder = null;
+                GA.Event(GA.Events.ExchangeCancelSellOrder, {value: this.nState.sellOrder.quantity});
             }else{
-                this.sellOrder = {
+                this.nState.sellOrder = {
                     amount: sellOrderAmountRef.current.GetValue(),
                     quantity: Number(sellOrderQuantityRef.current.GetValue())
                 };
-                Wallet.AllWallets[this.symbol].ChangeValue(-this.sellOrder.quantity);
-                GA.Event(GA.Events.ExchangePlaceSellOrder, {value: this.sellOrder.quantity});
+                Wallet.AllWallets[this.symbol].ChangeValue(-this.nState.sellOrder.quantity);
+                GA.Event(GA.Events.ExchangePlaceSellOrder, {value: this.nState.sellOrder.quantity});
             }
 
             updateDisplayedSellSection();
         };
 
         const updateDisplayedSellSection = () => {
-            if(this.sellOrder){
+            if(this.nState.sellOrder){
                 sellOrderSectionDetails.current.classList.add("nodisp");
                 sellOrderSectionPlace.current.classList.add("nodisp");
                 sellOrderSectionSummary.current.classList.remove("nodisp");
                 sellOrderSectionCancel.current.classList.remove("nodisp");
 
-                let total = this.sellOrder.amount * this.sellOrder.quantity;
-                sellOrderSummaryAmountRef.current.SetValue(Utils.DisplayNumber(this.sellOrder.amount) + " CSH");
-                sellOrderSummaryQtyRef.current.SetValue(Utils.DisplayNumber(this.sellOrder.quantity) + " " + this.symbol);
+                let total = this.nState.sellOrder.amount * this.nState.sellOrder.quantity;
+                sellOrderSummaryAmountRef.current.SetValue(Utils.DisplayNumber(this.nState.sellOrder.amount) + " CSH");
+                sellOrderSummaryQtyRef.current.SetValue(Utils.DisplayNumber(this.nState.sellOrder.quantity) + " " + this.symbol);
                 sellOrderSummaryTotalRef.current.SetValue(Utils.DisplayNumber(total) + " CSH");
             }else{
                 sellOrderSectionDetails.current.classList.remove("nodisp");
@@ -665,15 +699,15 @@ export default class Exchange extends App<Events>{
         updateDisplayedSellSection();
 
         const updateDisplayedBuySection = () => {
-            if(this.buyOrder){
+            if(this.nState.buyOrder){
                 buyOrderSectionDetails.current.classList.add("nodisp");
                 buyOrderSectionPlace.current.classList.add("nodisp");
                 buyOrderSectionSummary.current.classList.remove("nodisp");
                 buyOrderSectionCancel.current.classList.remove("nodisp");
 
-                let total = this.buyOrder.amount * this.buyOrder.quantity;
-                buyOrderSummaryAmountRef.current.SetValue(Utils.DisplayNumber(this.buyOrder.amount) + " CSH");
-                buyOrderSummaryQtyRef.current.SetValue(Utils.DisplayNumber(this.buyOrder.quantity) + " " + this.symbol);
+                let total = this.nState.buyOrder.amount * this.nState.buyOrder.quantity;
+                buyOrderSummaryAmountRef.current.SetValue(Utils.DisplayNumber(this.nState.buyOrder.amount) + " CSH");
+                buyOrderSummaryQtyRef.current.SetValue(Utils.DisplayNumber(this.nState.buyOrder.quantity) + " " + this.symbol);
                 buyOrderSummaryTotalRef.current.SetValue(Utils.DisplayNumber(total) + " CSH");
             }else{
                 buyOrderSectionDetails.current.classList.remove("nodisp");
@@ -690,7 +724,7 @@ export default class Exchange extends App<Events>{
         });
 
         const updateSellQtyMax = () => {
-            const qty = Wallet.AllWallets["ACN"].amount || 1;
+            const qty = Wallet.AllWallets["ACN"].GetAmount() || 1;
             sellOrderQuantityRef.current.SetValue(qty.toString());
         };
 
@@ -704,7 +738,7 @@ export default class Exchange extends App<Events>{
 
         const updateBuyQtyMax = () => {
             const amt = buyOrderAmountRef.current.GetValue();
-            const qty = Math.floor(Wallet.AllWallets["CSH"].amount / amt) || 1;
+            const qty = Math.floor(Wallet.AllWallets["CSH"].GetAmount() / amt) || 1;
             buyOrderQuantityRef.current.SetValue(qty.toString());
         };
 
@@ -723,7 +757,7 @@ export default class Exchange extends App<Events>{
             const bamt = buyOrderAmountRef.current.GetValue();
             const bvalue = bamt * bqty;
             buyOrderBtnRef.current.SetTitle("Place Buy Order For " + Utils.DisplayNumber(bvalue) + " CSH");
-            if(bvalue > Wallet.AllWallets["CSH"].amount){
+            if(bvalue > Wallet.AllWallets["CSH"].GetAmount()){
                 buyOrderBtnRef.current.SetEnabled(false);
             }else{
                 buyOrderBtnRef.current.SetEnabled(true);
@@ -733,7 +767,7 @@ export default class Exchange extends App<Events>{
             const samt = sellOrderAmountRef.current.GetValue();
             const svalue = samt * sqty;
             sellOrderBtnRef.current.SetTitle("Place Sell Order For " + Utils.DisplayNumber(svalue) + " CSH");
-            if(sqty > Wallet.AllWallets[this.symbol].amount){
+            if(sqty > Wallet.AllWallets[this.symbol].GetAmount()){
                 sellOrderBtnRef.current.SetEnabled(false);
             }else{
                 sellOrderBtnRef.current.SetEnabled(true);
@@ -766,23 +800,23 @@ export default class Exchange extends App<Events>{
         this.UpdateCanvas();
 
         const updateRates = () => {
-            $(curRateRef.current).text(Utils.DisplayNumber(this.rate) + " CSH");
+            $(curRateRef.current).text(Utils.DisplayNumber(this.nState.rate) + " CSH");
             $(avgRateRef.current).text(Utils.DisplayNumber(this.initialrate) + " CSH");
 
-            let max = this.rate;
-            let min = this.rate;
+            let max = this.nState.rate;
+            let min = this.nState.rate;
             let checkedPoints = 0;
-            for(let i = this.hist.length-1; i >= 0 && checkedPoints < Exchange.PointNum; i--){
+            for(let i = this.nState.hist.length-1; i >= 0 && checkedPoints < Exchange.PointNum; i--){
                 checkedPoints++;
-                let val = this.hist[i].rate;
-                if(i == this.hist.length-1 || val > max) max = val;
-                if(i == this.hist.length-1 || val < min) min = val;
+                let val = this.nState.hist[i].rate;
+                if(i == this.nState.hist.length-1 || val > max) max = val;
+                if(i == this.nState.hist.length-1 || val < min) min = val;
             }
 
             $(maxRateRef.current).text(Utils.DisplayNumber(max) + " CSH");
             $(minRateRef.current).text(Utils.DisplayNumber(min) + " CSH");
-            buyOrderAmountRef.current.SetMaxAllowedValue(this.rate);
-            sellOrderAmountRef.current.SetMinAllowedValue(this.rate);
+            buyOrderAmountRef.current.SetMaxAllowedValue(this.nState.rate);
+            sellOrderAmountRef.current.SetMinAllowedValue(this.nState.rate);
             if(isMaxBuy){
                 updateBuyQtyMax();
             }

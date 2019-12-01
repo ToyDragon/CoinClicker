@@ -11,6 +11,7 @@ import Miner from "../Crypto/Miner";
 import { CSSProperties } from "react";
 import IconWidget from "../../OS/Widgets/Icon";
 import GA from "../../Core/GA";
+import { IHasSaveData } from "../../OS/StateController";
 
 class Point{
     public x: number;
@@ -415,7 +416,31 @@ class DrawableList{
     }
 }
 
-export default class DiggerGame extends App<{}>{
+export default class DiggerGame extends App<{}> implements IHasSaveData{
+
+    public GetStateKey(): string {
+        return "Doug";
+    }
+
+    public GetState(): { nState?: any; sState?: any; } {
+        return {
+            nState: this.nState
+        };
+    }
+
+    public LoadState(nState: any, _sState: any): void {
+        if(nState){
+            this.nState = nState;
+        }
+    }
+
+    public AfterStateLoaded(): void{
+        this.UpdateHighscoreBoost();
+    }
+
+    private nState = {
+        bonusPoints: 0
+    }
 
     public static width: number = 16;
     public static height: number = 2048;
@@ -424,7 +449,6 @@ export default class DiggerGame extends App<{}>{
     public static screenWidth: number = 16;
     public static grassRow: number = 5;
 
-    public static bonusPoints: number = 0;
     public static maxBonus: number = 0.5;
     public static maxPoints: number = 20;
 
@@ -509,6 +533,8 @@ export default class DiggerGame extends App<{}>{
         this.InitShop();
         this.InitGrass();
         this.InitUnderground();
+
+        OS.StateController.AddTrackedObject(this);
     }
 
     private InitUnderground(): void{
@@ -778,24 +804,19 @@ export default class DiggerGame extends App<{}>{
                     log = true;
                 }
                 if(DiggerGame.player.hasPlutonium){
-                    if(DiggerGame.bonusPoints >= DiggerGame.maxPoints){
+                    if(this.nState.bonusPoints >= DiggerGame.maxPoints){
                         OS.MakeToast("Maximum plutonium bonus reached!");
                     }else{
                         OS.MakeToast("Increased plutonium mining bonus!");
-                        DiggerGame.bonusPoints++;
-                        Miner.RemoveBonus("ACN", "Plutonium Boost");
-                        Miner.AddBonus({
-                            symbol:"ACN",
-                            blockBoost: DiggerGame.maxBonus * Math.min(DiggerGame.bonusPoints / DiggerGame.maxPoints, 1),
-                            name: "Plutonium Boost"
-                        });
+                        this.nState.bonusPoints++;
+                        this.UpdateHighscoreBoost();
                     }
                     log = true;
                 }
                 if(log){
                     GA.Event(GA.Events.DougShopSell, {
                         value: DiggerGame.player.inventroyValue,
-                        label: (DiggerGame.bonusPoints || 0) + ""
+                        label: (this.nState.bonusPoints || 0) + ""
                     });
                 }
                 DiggerGame.player.hasPlutonium = false;
@@ -817,6 +838,17 @@ export default class DiggerGame extends App<{}>{
         }
 
         return true;
+    }
+
+    private UpdateHighscoreBoost(): void{
+        Miner.RemoveBonus("ACN", "Plutonium Boost");
+        if(this.nState.bonusPoints){
+            Miner.AddBonus({
+                symbol:"ACN",
+                blockBoost: DiggerGame.maxBonus * Math.min(this.nState.bonusPoints / DiggerGame.maxPoints, 1),
+                name: "Plutonium Boost"
+            });
+        }
     }
 }
 
@@ -943,6 +975,28 @@ class DiggerShop extends App<{}>{
 
         ReactDom.render(
             <div>
+                <style dangerouslySetInnerHTML={{__html: `
+                    .shopItemTitleSection{
+                        display: inline-block;
+                        position: relative;
+                        top: -10px;
+                    }
+
+                    .shopItemPrice{
+                        display: inline-block;
+                        position: absolute;
+                        right: 15px;
+                        top: 24px;
+                    }
+
+                    .shopItem.doug{
+                        position: relative;
+                    }
+
+                    .shopItem.doug:hover{
+                        background-color: lightgray;
+                    }
+                `}}></style>
                 <div style={thirdWidth}>
                     <div>
                         <div style={center}>
@@ -1003,7 +1057,7 @@ class DiggerShop extends App<{}>{
 
     private RenderItem(item: ShopItem, index: number, isUpgrade: boolean): JSX.Element{
         return (
-            <div className="shopItem" key={index} onClick={() => {
+            <div className="shopItem doug" key={index} onClick={() => {
                 if(DiggerGame.player.money >= item.cost){
                     if(item.diggingPower) {
                         DiggerGame.player.diggingPower += item.diggingPower;

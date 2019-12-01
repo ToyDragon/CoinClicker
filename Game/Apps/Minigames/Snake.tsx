@@ -3,6 +3,8 @@ import WebosWindow from "../../OS/Window";
 import { AllIcons } from "../../Core/Icons";
 import Miner, { BoostItem } from "../Crypto/Miner";
 import GA from "../../Core/GA";
+import { OS } from "../../OS/OS";
+import { IHasSaveData } from "../../OS/StateController";
 
 interface SnakeOptions{
     title: string;
@@ -13,7 +15,27 @@ interface Pos{
     y: number;
 }
 
-export default class Snake extends App<{}>{
+export default class Snake extends App<{}> implements IHasSaveData{
+
+    public GetStateKey(): string {
+        return "Snake";
+    }
+
+    public GetState(): { nState?: any; sState?: any; } {
+        return {
+            nState: this.nState
+        };
+    }
+
+    public LoadState(nState: any, _sState: any): void {
+        if(nState){
+            this.nState = nState;
+        }
+    }
+
+    public AfterStateLoaded(): void{
+        this.UpdateHighscoreBoost();
+    }
 
     public width: number = 17;
     public height: number = 17;
@@ -35,7 +57,10 @@ export default class Snake extends App<{}>{
     private options: SnakeOptions;
     private dead: boolean;
 
-    private static highScore: number = 0;
+    private nState = {
+        highScore: 0,
+    };
+
     private static maxApples: number = 40;
     private static maxBoost: number = 0.5;
     private static playingBonus: BoostItem = {
@@ -47,6 +72,8 @@ export default class Snake extends App<{}>{
     public constructor(options: SnakeOptions){
         super();
         this.options = options;
+
+        OS.StateController.AddTrackedObject(this);
     }
 
     private ComparePoints(p1: Pos, p2: Pos): boolean{
@@ -185,18 +212,13 @@ export default class Snake extends App<{}>{
         if(this.dead){
             Miner.RemoveBonus(Snake.playingBonus.symbol, Snake.playingBonus.name);
             const points = (this.snakePosList.length - 3);
-            if(Snake.highScore < points){
-                Snake.highScore = points;
-                Miner.RemoveBonus("ACN", "Snake Highscore Bonus");
-                Miner.AddBonus({
-                    blockBoost: Snake.maxBoost * Math.min(points / Snake.maxApples, 1),
-                    name: "Snake Highscore Bonus",
-                    symbol: "ACN"
-                });
-                GA.Event(GA.Events.SnakeFinishGame, {
-                    value: points
-                });
+            if(this.nState.highScore < points){
+                this.nState.highScore = points;
+                this.UpdateHighscoreBoost();
             }
+            GA.Event(GA.Events.SnakeFinishGame, {
+                value: points
+            });
             return;
         }
         
@@ -212,5 +234,16 @@ export default class Snake extends App<{}>{
         }
         
         this.RenderDisplay();
+    }
+
+    private UpdateHighscoreBoost(): void{
+        Miner.RemoveBonus("ACN", "Snake Highscore Bonus");
+        if(this.nState.highScore > 0){
+            Miner.AddBonus({
+                blockBoost: Snake.maxBoost * Math.min(this.nState.highScore / Snake.maxApples, 1),
+                name: "Snake Highscore Bonus",
+                symbol: "ACN"
+            });
+        }
     }
 }

@@ -8,6 +8,7 @@ import { Wallet } from "../../Crypto/Wallet";
 import Exchange from "../../Crypto/Exchange/Exchange";
 import Miner from "../../Crypto/Miner";
 import GA from "../../../Core/GA";
+import { IHasSaveData } from "../../../OS/StateController";
 
 export interface MojaveSharedDataKeys extends SharedDataKeys{
     hasACNExchange: boolean;
@@ -36,12 +37,47 @@ class ShopItem{
     hasVar: keyof MojaveSharedDataKeys;
 }
 
-export default class MojavePage extends VirtualPage{
+export default class MojavePage extends VirtualPage implements IHasSaveData{
+
+    public GetStateKey(): string {
+        return "Mojave";
+    }
+    
+    public GetState(): { nState?: any; sState?: any; } {
+        return null;
+    }
+
+    public LoadState(_nState: any, _sState: any): void {
+        
+    }
+
+    public AfterStateLoaded(): void {
+        const items = this.GetAllItems();
+        for(let item of items){
+            if(OS.getSharedData(item.hasVar)){
+                item.action(item);
+            }
+        }
+    }
 
     public rootDiv: JQuery;
+    private exchangeApp: Exchange;
 
     public constructor(){
         super();
+        this.exchangeApp = new Exchange({
+            symbol: "ACN",
+            initialrate: 50,
+            icon: AllIcons.AlphaExchange,
+            growth: 1.002,
+            disasterRate: 3,
+            disasterRange: 0.8,
+            disasterLength: 30,
+            blessingRate: 2,
+            blessingRange: 1.35,
+            blessingLength: 15
+        });
+        OS.StateController.AddTrackedObject(this);
     }
     public GetURL(): string {
         return "www.mojave.com";
@@ -174,23 +210,10 @@ export default class MojavePage extends VirtualPage{
             price: 5,
             symbol: "ACN",
             action: () => {
-                let exchange =  new Exchange({
-                    symbol: "ACN",
-                    initialrate: 50,
-                    icon: AllIcons.AlphaExchange,
-                    growth: 1.002,
-                    disasterRate: 3,
-                    disasterRange: 0.8,
-                    disasterLength: 30,
-                    blessingRate: 2,
-                    blessingRange: 1.35,
-                    blessingLength: 15
-                })
-                
                 OS.CreateDesktopItem({
-                    title: exchange.title,
-                    icon: exchange.icon,
-                    app: exchange
+                    title: this.exchangeApp.title,
+                    icon: this.exchangeApp.icon,
+                    app: this.exchangeApp
                 });
             }
         });
@@ -249,9 +272,7 @@ export default class MojavePage extends VirtualPage{
                     icon: AllIcons.AlphaExchange,
                     price: 1999,
                     symbol: "CSH",
-                    action: () => { 
-                        Wallet.TryBuy<MojaveSharedDataKeys>("hasACNBuy", 1999, "CSH").then(() => {});
-                    }
+                    action: () => { } //Wallet.TryBuy<MojaveSharedDataKeys>("hasACNBuy", 1999, "CSH").then(() => {});
                 });
 
                 items.push({
@@ -262,9 +283,7 @@ export default class MojavePage extends VirtualPage{
                     icon: AllIcons.AlphaExchange,
                     price: 2499,
                     symbol: "CSH",
-                    action: () => { 
-                        Wallet.TryBuy<MojaveSharedDataKeys>("hasACNAdvancedSell", 2499, "CSH").then(() => {});
-                    }
+                    action: () => { } //Wallet.TryBuy<MojaveSharedDataKeys>("hasACNAdvancedSell", 2499, "CSH").then(() => {});
                 });
 
                 items.push({
@@ -275,9 +294,7 @@ export default class MojavePage extends VirtualPage{
                     icon: AllIcons.AlphaExchange,
                     price: 9999,
                     symbol: "CSH",
-                    action: () => { 
-                        Wallet.TryBuy<MojaveSharedDataKeys>("hasACNBuyOrders", 9999, "CSH").then(() => {});
-                    }
+                    action: () => { } //Wallet.TryBuy<MojaveSharedDataKeys>("hasACNBuyOrders", 9999, "CSH").then(() => {});
                 });
                 
                 items.push({
@@ -288,9 +305,7 @@ export default class MojavePage extends VirtualPage{
                     icon: AllIcons.AlphaExchange,
                     price: 19999,
                     symbol: "CSH",
-                    action: () => { 
-                        Wallet.TryBuy<MojaveSharedDataKeys>("hasACNSellOrders", 19999, "CSH").then(() => {});
-                    }
+                    action: () => { } //Wallet.TryBuy<MojaveSharedDataKeys>("hasACNSellOrders", 19999, "CSH").then(() => {});
                 });
             }
 		}

@@ -72,8 +72,11 @@ export default class Utils{
         if(number === 0)
         {
             return "0";
-        }
-		let digits = Math.floor(Math.log(number) / Math.log(10)) + 1;
+		}
+		if(number < 1 && number > 0){
+			return (Math.floor(number*100)/100) + "";
+		}
+		let digits = Math.floor(Math.log10(number)) + 1;
         if(digits > 5 || digits < 0)
         {
 			let rounded = number/Math.pow(10, digits - 1);

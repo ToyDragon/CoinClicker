@@ -556,7 +556,7 @@ export default class Pinball extends App<{}>{
 
     private AddPlays(amt: number): void{
         const wallet = Wallet.AllWallets[this.symbol];
-        if(wallet.amount >= amt * 10){
+        if(wallet.GetAmount() >= amt * 10){
             wallet.ChangeValue(amt * -10);
             this.pendingPlays += amt;
             this.UpdateUIElements();
@@ -565,8 +565,8 @@ export default class Pinball extends App<{}>{
 
     private UpdateUIElements(): void{
         const wallet = Wallet.AllWallets[this.symbol];
-        this.btnPlayOne.SetEnabled(wallet.amount >= 10)
-        this.btnPlayFive.SetEnabled(wallet.amount >= 50)
+        this.btnPlayOne.SetEnabled(wallet.GetAmount() >= 10)
+        this.btnPlayFive.SetEnabled(wallet.GetAmount() >= 50)
     }
 
     public CreateWindow(): void{

@@ -1,3 +1,4 @@
+import Utils from "./Utils";
 
 const Categories = {
     Window: "Window",
@@ -113,7 +114,9 @@ export default class GA{
             }
         }
         data.event_category = event.category;
-
+        if(Utils.DebugEnabled()){
+            console.log("GA. event: " + event.action + " data: " + JSON.stringify(data));
+        }
         gtag("event", event.action, data);
     }
 }

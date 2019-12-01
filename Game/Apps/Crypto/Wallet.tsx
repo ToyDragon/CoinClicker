@@ -7,6 +7,7 @@ import Observable from "../../Core/Observable";
 import WebosWindow from "../../OS/Window";
 import { OS, SharedDataKeys } from "../../OS/OS";
 import GA from "../../Core/GA";
+import { IHasSaveData } from "../../OS/StateController";
 
 interface WalletOptions{
     symbol: string;
@@ -19,8 +20,7 @@ interface WalletEvents{
     afterChangeValue;
 }
 
-export class Wallet extends Observable<WalletEvents>{
-
+export class Wallet extends Observable<WalletEvents> implements IHasSaveData{
     public static TryBuy<WalletData extends SharedDataKeys>(itemKey: keyof WalletData, amount: number, symbol: string): Promise<void>{
         return new Promise((resolve, reject) =>{
             if(OS.getSharedData(itemKey as string)){
@@ -28,12 +28,12 @@ export class Wallet extends Observable<WalletEvents>{
                 reject();
             }else{
                 const wallet = Wallet.AllWallets[symbol];
-                if(!wallet || wallet.amount < amount){
-                    console.log("Amount check failed " + (wallet && wallet.amount) + "/" + amount);
+                if(!wallet || wallet.nState.amount < amount){
+                    console.log("Amount check failed " + (wallet && wallet.nState.amount) + "/" + amount);
                     reject();
                 }else{
                     wallet.ChangeValue(-amount);
-                    OS.setSharedData(itemKey as string, true);
+                    OS.setSharedData(itemKey as string, "1");
                     resolve();
                 }
             }
@@ -62,7 +62,7 @@ export class Wallet extends Observable<WalletEvents>{
 
     public static ClearAllWallets(): void{
 		for(let symbol in Wallet.AllWallets){
-			Wallet.AllWallets[symbol].ChangeValue(-Wallet.AllWallets[symbol].amount);
+			Wallet.AllWallets[symbol].ChangeValue(-Wallet.AllWallets[symbol].nState.amount);
 		}
     }
 
@@ -88,9 +88,15 @@ export class Wallet extends Observable<WalletEvents>{
 
     public static AllWallets: {[symbol: string]: Wallet} = {};
 
+    public sState = {
+
+    };
+    public nState = {
+        amount: 0
+    };
+
     public symbol: string;
     public name: string;
-    public amount: number;
     public icon: IconDescriptor;
 
     public constructor(options: WalletOptions){
@@ -98,12 +104,35 @@ export class Wallet extends Observable<WalletEvents>{
         
         this.symbol = options.symbol;
         this.name = options.name;
-        this.amount = options.amount || 0;
         this.icon = options.icon;
+        this.nState.amount = options.amount || 0;
         
         this.on("afterChangeValue", (args) => { this.ValueChanged(args); });
 
         Wallet.AllWallets[options.symbol] = this;
+        OS.StateController.AddTrackedObject(this);
+    }
+
+    public GetStateKey(): string {
+        return "Wallet_"+this.symbol;
+    }
+
+    public GetState(): { nState?: any; sState?: any; } {
+        return {
+            nState: this.nState,
+            sState: this.sState
+        };
+    }
+    public LoadState(nState: any, sState: any): void {
+        this.nState = nState || {};
+        this.sState = sState || {};
+        this.nState.amount = this.nState.amount || 0;
+    }
+
+    public AfterStateLoaded(): void {}
+
+    public GetAmount(): number{
+        return this.nState.amount;
     }
 
     public ValueChanged(eventInfo: [Wallet, number]): void{
@@ -111,7 +140,7 @@ export class Wallet extends Observable<WalletEvents>{
     }
     
     public ChangeValue(amount): void{
-        this.amount += amount;
+        this.nState.amount += amount;
         this.trigger("afterChangeValue", [this, amount]);
     }
 
@@ -127,14 +156,21 @@ export class Wallet extends Observable<WalletEvents>{
         ReactDom.render([
             <div className="mainIcon" key="a" style={iconStyles}></div>,
             <div className="symbol" key="b">{this.symbol}</div>,
-            <div className="value" key="c">{Utils.DisplayNumber(this.amount)}</div>
+            <div className="value" key="c">{Utils.DisplayNumber(this.nState.amount)}</div>
         ], mainDiv[0]);
         
         return mainDiv;
     }
 }
 
-export class WalletApp extends App<{}>{
+export class WalletApp extends App<{}> implements IHasSaveData{
+
+    public GetStateKey(): string { return "WalletApp"; }
+    public GetState(): { nState?: any; sState?: any; } { return {}; }
+    public LoadState(_nState: any, _sState: any): void {}
+    public AfterStateLoaded(): void {
+        this.DrawWindowContent();
+    }
 
     public constructor(){
         super();
@@ -180,15 +216,11 @@ export class WalletApp extends App<{}>{
             closeEvent: GA.Events.WalletClose
 		});
 		
-		this.windowObj.on("close", function(){
-			this.windowObj = null;
-		});
-		
 		this.DrawWindowContent();
     }
 
     public DrawWindowContent(): void{
-		if(!this.windowObj) return;
+		if(!this.windowObj || !this.windowObj.contentDiv) return;
 		this.windowObj.contentDiv.empty();
 
 		let rootDiv = $("<div></div>");

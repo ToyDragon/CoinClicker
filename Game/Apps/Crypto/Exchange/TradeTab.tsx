@@ -21,7 +21,6 @@ interface TradeTabProps {
 }
 
 export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>{
-    private autosellEnabled: boolean;
 
     private btnToggleAutoSellSection: React.RefObject<ButtonWidget>;
     private loadingBarAutoSell: React.RefObject<LoadingBarWidget>;
@@ -41,8 +40,8 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
             sellQty = 0;
         }
 
-        let sellAmt = sellQty * this.props.exchange.rate;
-        if(sellQty > Wallet.AllWallets[this.props.symbol].amount){
+        let sellAmt = sellQty * this.props.exchange.nState.rate;
+        if(sellQty > Wallet.AllWallets[this.props.symbol].GetAmount()){
             this.btnSell.current.SetEnabled(false);
         }else{
             this.btnSell.current.SetEnabled(true);
@@ -54,8 +53,8 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
             buyQty = 0;
         }
 
-        let buyAmt = buyQty * this.props.exchange.rate;
-        if(buyAmt > Wallet.AllWallets["CSH"].amount){
+        let buyAmt = buyQty * this.props.exchange.nState.rate;
+        if(buyAmt > Wallet.AllWallets["CSH"].GetAmount()){
             this.btnBuy.current.SetEnabled(false);
         }else{
             this.btnBuy.current.SetEnabled(true);
@@ -66,9 +65,9 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
     private updateQuantity(isSell: boolean, percentage: number): void{
         let max = 0;
         if(isSell){
-            max = Wallet.AllWallets[this.props.symbol].amount;
+            max = Wallet.AllWallets[this.props.symbol].GetAmount();
         }else{
-            max = Wallet.AllWallets["CSH"].amount / this.props.exchange.rate;
+            max = Wallet.AllWallets["CSH"].GetAmount() / this.props.exchange.nState.rate;
         }
 
         let count = Math.floor(percentage * max);
@@ -86,11 +85,11 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
             return;
         }
 
-        if(sellQty > Wallet.AllWallets[this.props.symbol].amount){
+        if(sellQty > Wallet.AllWallets[this.props.symbol].GetAmount()){
             return;
         }
 
-        let sellAmt = sellQty * this.props.exchange.rate;
+        let sellAmt = sellQty * this.props.exchange.nState.rate;
 
         Wallet.AllWallets["CSH"].ChangeValue(sellAmt);
         Wallet.AllWallets[this.props.symbol].ChangeValue(-sellQty);
@@ -113,8 +112,8 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
             return;
         }
 
-        let buyAmt = buyQty * this.props.exchange.rate;
-        if(buyAmt > Wallet.AllWallets["CSH"].amount){
+        let buyAmt = buyQty * this.props.exchange.nState.rate;
+        if(buyAmt > Wallet.AllWallets["CSH"].GetAmount()){
             return;
         }
 
@@ -134,7 +133,11 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
     }
 
     public getAutoSellEnabled(): boolean{
-        return this.autosellEnabled;
+        return this.props.exchange.sState.autosellEnabled == "1";
+    }
+
+    public setAutoSellEnabled(enabled: boolean): void{
+        this.props.exchange.sState.autosellEnabled = enabled ? "1" : "0";
     }
 
     public componentDidMount(): void{
@@ -149,13 +152,13 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
     }
 
     private disableAutoSell(): void{
-        this.autosellEnabled = false;
+        this.setAutoSellEnabled(false);
         this.autosellChanged();
         GA.Event(GA.Events.ExchangeDisableAutoSell);
     }
 
     private enableAutoSell(): void{
-        this.autosellEnabled = true;
+        this.setAutoSellEnabled(true);
         this.autosellChanged();
         GA.Event(GA.Events.ExchangeEnableAutoSell);
     }
@@ -168,7 +171,7 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
     }
 
     private updateVisibleSections(): void{
-        if(this.autosellEnabled){
+        if(this.getAutoSellEnabled()){
             this.divAutoSellSection.current.classList.remove("nodisp");
             this.divSellSection.current.classList.add("nodisp");
             this.divBuyAdvanced.current.classList.add("nodisp");
@@ -194,8 +197,6 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
         const titleOptions = {color: "white", margin: 3};
         const qtyInputOptions = {requireNumbers: true, noDecimal: true, placeholder:"quantity", defaultValue: "0", fontSize: 12, backgroundColor: "white", rightAlign: true, style: {"marginLeft": "4px", "marginBottom": "4px"}, width: 150};
         const confirmOptions = {small: true, backgroundColor: "#bfbfbf", fontSize: 15, style: {"width": "147px"}};
-
-        this.autosellEnabled = true;
 
         const triggerPointsRestart: TriggerPoint[] = [
             {

@@ -9,6 +9,7 @@ import Snake from "../../Minigames/Snake";
 import Pinball from "../../Minigames/Pinball";
 import DiggerGame from "../../Minigames/Digger";
 import GA from "../../../Core/GA";
+import { IHasSaveData } from "../../../OS/StateController";
 
 interface ShopItem{
     title: string;
@@ -16,7 +17,7 @@ interface ShopItem{
     icon: IconDetails;
     price: number;
     symbol: string;
-    action: Function;
+    action: (fromSave: boolean) => void;
 }
 
 export interface CoalSharedDataKeys extends SharedDataKeys{
@@ -24,12 +25,34 @@ export interface CoalSharedDataKeys extends SharedDataKeys{
     hasDigger: boolean;
 }
 
-export default class CoalPage extends VirtualPage{
+export default class CoalPage extends VirtualPage implements IHasSaveData{
+
+    public GetStateKey(): string {
+        return "Coal";
+    }
+
+    public GetState(): { nState?: any; sState?: any; } {
+        return null;
+    }
+
+    public LoadState(_nState: any, _sState: any): void {
+        
+    }
+
+    public AfterStateLoaded(): void {
+        this.tryBuyDigger(true);
+        this.tryBuySnake(true);
+    }
 
     private rootDiv: JQuery<HTMLElement>;
+    private snakeApp: Snake;
+    private dougApp: DiggerGame;
 
     public constructor(){
         super();
+        OS.StateController.AddTrackedObject(this);
+        this.snakeApp = new Snake({title: "Snake"});
+        this.dougApp = new DiggerGame({title: "Doug the Digger"});
     }
 
     public GetURL(): string {
@@ -183,7 +206,7 @@ export default class CoalPage extends VirtualPage{
 		symbolDiv.addClass("shopItemPriceSymbol");
 		symbolDiv.text(itemObj.symbol);
 		rowDiv.append(symbolDiv);
-		rowDiv.on("click", function(){ itemObj.action(); });
+		rowDiv.on("click", () => { itemObj.action(false); });
 		
 		return rowDiv;
 	}
@@ -209,7 +232,7 @@ export default class CoalPage extends VirtualPage{
 				icon: AllIcons.Snake,
 				price: 4999,
 				symbol: "CSH",
-				action: () => {this.tryBuySnake();}
+				action: (fromSave: boolean) => {this.tryBuySnake(fromSave);}
 			});
 		}
         
@@ -233,7 +256,7 @@ export default class CoalPage extends VirtualPage{
 				icon: AllIcons.Shovel,
 				price: 449,
 				symbol: "ACN",
-				action: () => {this.tryBuyDigger();}
+				action: (fromSave: boolean) => {this.tryBuyDigger(fromSave);}
 			});
         }
 		
@@ -241,31 +264,44 @@ export default class CoalPage extends VirtualPage{
 	}
 	
 	private UpdateItems(): void{
-		this.rootDiv.empty();
-		var items = this.getAvailableItems();
-		for(var i = 0; i < items.length; i++){
-			var itemObj = items[i];
-			var rowDiv = this.createShopRow(itemObj);
-			this.rootDiv.append(rowDiv);
-		}
+        if(this.rootDiv){
+            this.rootDiv.empty();
+            var items = this.getAvailableItems();
+            for(var i = 0; i < items.length; i++){
+                var itemObj = items[i];
+                var rowDiv = this.createShopRow(itemObj);
+                this.rootDiv.append(rowDiv);
+            }
+        }
 	}
 	
-	private tryBuySnake(): void{
-		if(OS.getSharedData<CoalSharedDataKeys>("hasSnake")) return;
+	private tryBuySnake(fromSave: boolean): void{
+        if(!fromSave){
+            if(OS.getSharedData<CoalSharedDataKeys>("hasSnake")){
+                return;
+            }
+
+            const cshWallet = Wallet.AllWallets["CSH"];
+            if(cshWallet.GetAmount() < 4999){
+                return;
+            }
+            cshWallet.ChangeValue(-4999);
+            OS.setSharedData<CoalSharedDataKeys>("hasSnake", "1");
+        }else if(!OS.getSharedData<CoalSharedDataKeys>("hasSnake")){
+            return;
+        }
 		
-		var cshWallet = Wallet.AllWallets["CSH"];
-		if(cshWallet.amount < 4999)return;
-		cshWallet.ChangeValue(-4999);
-        OS.setSharedData<CoalSharedDataKeys>("hasSnake", true);
-        
 		OS.CreateDesktopItem({
 			title: "Snake",
             icon: AllIcons.Snake,
-            app: new Snake({title: "Snake"})
+            app: this.snakeApp
 		});
 		
         this.UpdateItems();
-        GA.Event(GA.Events.CoalBuy, {label: "Snake"});
+
+        if(!fromSave){
+            GA.Event(GA.Events.CoalBuy, {label: "Snake"});
+        }
 	}
 	/*
 	function tryBuyMusic(){
@@ -301,21 +337,30 @@ export default class CoalPage extends VirtualPage{
     }
     */
 	
-	private tryBuyDigger(): void{
-		if(!OS.getSharedData<CoalSharedDataKeys>("hasDigger")){
-		
-            var cshWallet = Wallet.AllWallets["ACN"];
-            if(cshWallet.amount < 449)return;
+	private tryBuyDigger(fromSave: boolean): void{
+        if(!fromSave){
+            if(OS.getSharedData<CoalSharedDataKeys>("hasDigger")){
+                return; 
+            }
+            const cshWallet = Wallet.AllWallets["ACN"];
+            if(cshWallet.GetAmount() < 449){
+                return;
+            }
             cshWallet.ChangeValue(-449);
+            OS.setSharedData<CoalSharedDataKeys>("hasDigger", "1");
+        }else if(!OS.getSharedData<CoalSharedDataKeys>("hasDigger")){
+            return;
+        }
 
-            OS.setSharedData<CoalSharedDataKeys>("hasDigger", true);
-            OS.CreateDesktopItem({
-				title: "Doug the Digger",
-				icon: AllIcons.Shovel,
-				app: new DiggerGame({title: "Doug the Digger"})
-			});
-			
-            this.UpdateItems();
+        OS.CreateDesktopItem({
+            title: "Doug the Digger",
+            icon: AllIcons.Shovel,
+            app: this.dougApp
+        });
+        
+        this.UpdateItems();
+
+        if(!fromSave){
             GA.Event(GA.Events.CoalBuy, {label: "Doug the Digger"});
 		}
     }

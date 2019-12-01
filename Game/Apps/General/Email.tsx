@@ -12,6 +12,7 @@ import { Wallet } from "../Crypto/Wallet";
 import { MojaveSharedDataKeys } from "../Browser/VirtualPages/Mojave";
 import { CoalSharedDataKeys } from "../Browser/VirtualPages/Coal";
 import GA from "../../Core/GA";
+import { IHasSaveData } from "../../OS/StateController";
 
 interface Sender{
     name: string;
@@ -22,7 +23,6 @@ interface Sender{
 interface Email{
     content: JSX.Element;
     subject: keyof typeof EmailData;
-    read?: boolean;
 }
 
 const EmailData = {
@@ -142,13 +142,41 @@ const EmailData = {
     ),
 };
 
-export class EmailApp extends App<{}>{
+export class EmailApp extends App<{}> implements IHasSaveData{
+    
+    public GetStateKey(): string {
+        return "Email";
+    }
+
+    public GetState(): { nState?: any; sState?: any; } {
+        return {
+            sState: this.sState
+        };
+    }
+
+    public LoadState(_nState: any, sState: any): void {
+        if(sState){
+            this.sState = sState;
+        }
+    }
+
+    public AfterStateLoaded(): void {
+        for(let subject in EmailData){
+            if(this.sState.shownEmails[subject]){
+                this.AddEmailCore(subject as keyof typeof EmailData, true);
+            }
+        }
+    }
 
     private allEmails: Email[];
     private emailList: HTMLDivElement;
     private emailContent: HTMLDivElement;
-    private hasEmail: {[subject: string]: boolean} = {};
     private activeIndex: number = -1;
+
+    private sState = {
+        readEmails: {} as {[subject: string]: "1" | "0"},
+        shownEmails: {} as {[subject: string]: "1" | "0"},
+    };
 
     public constructor(){
         super();
@@ -159,7 +187,7 @@ export class EmailApp extends App<{}>{
         this.AddEmail("Starting Out");
 
         Wallet.AllWallets["ACN"].on("afterChangeValue", () => {
-            if(Wallet.AllWallets["ACN"].amount >= 5){
+            if(Wallet.AllWallets["ACN"].GetAmount() >= 5){
                 this.AddEmail("Making Cash");
             }
         });
@@ -171,22 +199,27 @@ export class EmailApp extends App<{}>{
         OS.on<CoalSharedDataKeys>("hasSnake", () => { this.AddEmail("Snake"); });
 
         Wallet.AllWallets["CSH"].on("afterChangeValue", () => {
-            if(Wallet.AllWallets["CSH"].amount >= 100){
+            if(Wallet.AllWallets["CSH"].GetAmount() >= 100){
                 this.AddEmail("Online Stores");
             }
         });
 
-        
 		let emailElement = $(".item.email > .icon");
 		emailElement.on("click", () => {
             this.ActivateOrCreate();
             for(let i = 0; i < this.allEmails.length; i++){
-                if(!this.allEmails[i].read){
+                if(!this.IsEmailRead(this.allEmails[i].subject)){
                     this.RenderEmail(i);
                     break;
                 }
             }
-		});
+        });
+        
+        OS.StateController.AddTrackedObject(this);
+    }
+
+    public IsEmailRead(subject: string): boolean{
+        return this.sState.readEmails[subject] === "1";
     }
 
     public AddAdblockEmail(): void{
@@ -194,14 +227,17 @@ export class EmailApp extends App<{}>{
     }
 
     public AddEmail(subject: keyof typeof EmailData, silent?: boolean): void{
-        if(this.hasEmail[subject]){
+        if(this.sState.shownEmails[subject]){
             return;
         }
+        if(this.sState.shownEmails[subject]){
+            return;
+        }
+        this.sState.shownEmails[subject] = "1";
+    }
+
+    public AddEmailCore(subject: keyof typeof EmailData, silent?: boolean): void{
         let content = EmailData[subject];
-        if(this.hasEmail[subject]){
-            return;
-        }
-        this.hasEmail[subject] = true;
         const email = {
             subject: subject,
             content: content
@@ -218,7 +254,6 @@ export class EmailApp extends App<{}>{
             this.emailList.append(item);
             $(item).on("click", (e) => {
                 let ix = $(e.currentTarget).attr("data-emailindex");
-                console.log("clicked hyper-email " + ix);
                 this.RenderEmail(Number(ix));
             });
 
@@ -311,7 +346,7 @@ export class EmailApp extends App<{}>{
         ReactDom.unmountComponentAtNode(this.emailContent);
         ReactDom.render(email.content, this.emailContent);
         GA.Event(GA.Events.EmailSelectEmail, {label: email.subject});
-        email.read = true;
+        this.sState.readEmails[email.subject] = "1";
         $(this.emailList).find(".email").removeClass("active");
         $(this.emailList).find(".email[data-emailindex=" + ix +"] > .unread").addClass("nodisp");
         $($(this.emailList).find(".email")[ix]).addClass("active");
@@ -331,7 +366,7 @@ export class EmailApp extends App<{}>{
 		let layoutElement = $(".item.email > .icon");
 
         for(let email of this.allEmails){
-            if(!email.read){
+            if(!this.IsEmailRead(email.subject)){
                 const icon = AllIcons.Letter.large.dark;
                 layoutElement.css("background-image","url(\"" + AssetLocation + icon.id + "\")");
                 layoutElement.css("width", icon.width + "px");
@@ -361,7 +396,7 @@ export class EmailApp extends App<{}>{
         return (
             <div className="email" key={index} style={{padding: "4px"}} data-emailindex={index}>
                 <LabelWidget title={email.subject} tooltip="Subject" />
-                <div className={!!email.read ? "nodisp unread" : "unread"}>
+                <div className={this.IsEmailRead(email.subject) ? "nodisp unread" : "unread"}>
                     <div style={{display:"inline-block"}}><IconWidget icon={AllIcons.Frog.small} /></div>
                     <div style={{display:"inline-block", width: "7px"}}></div>
                     <div style={{display:"inline-block", marginTop: "-3px"}}><LabelWidget title="Unread" tooltip="Unread" size={12} light={true}/></div>
