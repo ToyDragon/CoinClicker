@@ -96,7 +96,7 @@ export default class Popup{
         }
     }
 
-    private Cancel(): void{
+    public Cancel(): void{
         if(this.done) return;
         this.done = true;
         if(this.options.cancel){

@@ -14,6 +14,7 @@ import { AboutApp } from "../Apps/General/About";
 import App from "../Apps/App";
 import StateController from "./StateController";
 import Miner from "../Apps/Crypto/Miner";
+import { SettingsApp } from "../Apps/General/Settings";
 
 /* Base class for all shared data keys just to help restrict the intellisense */
 export interface SharedDataKeys{
@@ -29,6 +30,7 @@ export class OS{
 	public static PickaxeApp: Pickaxe;
 	public static AboutApp: AboutApp;
 	public static StateController: StateController;
+	public static SettingsApp: SettingsApp;
 
 	private static SharedData: {[value: string]: any} = {};
 	public static SharedDataEventHandlers: {[key: string]: Function[]} = {};
@@ -193,8 +195,27 @@ export class OS{
 		});
 		OS.RootFolder.AddItem(recyclingBin.item);
 
-		OS.WalletApp = new WalletApp();
+		let metaFolder = new Folder({
+			title: "Meta",
+			canRename: false
+		});
+		OS.RootFolder.AddItem(metaFolder.item);
 
+		OS.AboutApp = new AboutApp();
+		metaFolder.AddItem(new FolderItem({
+			title: "About",
+			icon: AllIcons.Frog,
+			app: OS.AboutApp
+		}));
+
+		OS.SettingsApp = new SettingsApp();
+		metaFolder.AddItem(new FolderItem({
+			title: "Settings",
+			icon: AllIcons.Frog,
+			app: OS.SettingsApp
+		}));
+
+		OS.WalletApp = new WalletApp();
 		OS.CreateDesktopItem({
 			title: "Wallet",
 			icon: AllIcons.Wallet,
@@ -202,7 +223,6 @@ export class OS{
 		});
 
 		OS.BrowserApp = new Browser();
-
 		OS.CreateDesktopItem({
 			title: "Web Browser",
 			icon: AllIcons.Browser,
@@ -210,7 +230,6 @@ export class OS{
 		});
 
 		OS.EmailApp = new EmailApp();
-
 		OS.CreateDesktopItem({
 			title: "Email",
 			icon: AllIcons.Letter,
@@ -278,13 +297,6 @@ export class OS{
 			]);
 
 			e.preventDefault();
-		});
-
-		OS.AboutApp = new AboutApp();
-		OS.CreateDesktopItem({
-			title: "About",
-			icon: AllIcons.Frog,
-			app: OS.AboutApp
 		});
 
 		$("#menu").on("mousedown", (e) => {

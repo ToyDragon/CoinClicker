@@ -44,8 +44,8 @@ export default class SelectionListWidget extends Widget<SelectionListOptions, Ev
         super(options);
 
         this.element = $("<div class=\"selectionList borderRidge\"></div>");
-        this.element.css("width", options.width);
-        this.element.css("height", options.height);
+        //this.element.css("width", options.width);
+        //this.element.css("height", options.height);
 
         this.selectedIndex = -1;
         this.dataList = [];

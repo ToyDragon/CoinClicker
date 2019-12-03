@@ -21,6 +21,17 @@ export default class IconWidget extends Widget<IconOptions, {}>{
         this.options = options;
     }
 
+    public SetIcon(icon: IconLightAndDark): void{
+        const ele = $(this.iconRef.current);
+        if(icon){
+            ele.css("background-image", "url(\"" + AssetLocation + icon.dark.id + "\")");
+            ele.css("width", icon.dark.width + "px");
+            ele.css("height", icon.dark.height + "px");
+        }else{
+            ele.css("background-image", "");
+        }
+    }
+
     public render(): JSX.Element{
         let styles = {
             backgroundImage: "url(\"" + AssetLocation + this.options.icon.dark.id + "\")",
