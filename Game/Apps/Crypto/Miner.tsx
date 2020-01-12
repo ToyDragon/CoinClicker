@@ -392,7 +392,7 @@ class BonusDetails extends Widget<BonusDetailsOptions, BonusDetailsEvents>{
         const halfWidth: CSSProperties = {width: "50%", verticalAlign: "top", display: "inline-block", position:"relative", paddingBottom: "5px"};
         const center: CSSProperties = {marginTop: "3px", position: "relative", left:"50%", transform: "translate(-50%)", display: "inline-block"};
         const blue: CSSProperties = {backgroundColor: "blue", borderRadius: "5px", border: "1px solid cyan", padding: "4px", margin: "2px", display: "inline-block"};
-        const red: CSSProperties = {backgroundColor: "red", borderRadius: "5px", border: "1px solid pink", padding: "4px", margin: "2px", display: "inline-block"};
+        const red: CSSProperties = {backgroundColor: "red", borderRadius: "5px", border: "1px solid #fff0f3", padding: "4px", margin: "2px", display: "inline-block"};
 
         return (
             <div style={{position: "relative", top: "-13px"}}>
@@ -423,13 +423,13 @@ class BonusDetails extends Widget<BonusDetailsOptions, BonusDetailsEvents>{
                     </div>
                     <div>
                         <div style={center}>
-                            <div style={red} title="Base block duration."><LabelWidget tooltip="Base block duration." color="pink" title="" ref={this.labelBaseTime} size={12} /></div>
-                            <div style={red} title="Block duration divisor."><LabelWidget tooltip="Block duration divisor." color="pink" title="" ref={this.labelTimeDivisor} size={12} /></div>
+                            <div style={red} title="Base block duration."><LabelWidget tooltip="Base block duration." color="#fff0f3" title="" ref={this.labelBaseTime} size={12} /></div>
+                            <div style={red} title="Block duration divisor."><LabelWidget tooltip="Block duration divisor." color="#fff0f3" title="" ref={this.labelTimeDivisor} size={12} /></div>
                         </div>
                     </div>
                     <div>
                         <div style={center}>
-                            <div style={red} title="Effective block speed."><LabelWidget tooltip="Effective block speed." color="pink" title="" ref={this.labelBlockTime} /></div>
+                            <div style={red} title="Effective block speed."><LabelWidget tooltip="Effective block speed." color="#fff0f3" title="" ref={this.labelBlockTime} /></div>
                         </div>
                     </div>
                     <div key="infoBtn" style={{left: "161px", top: "78px", position: "absolute", display: "inline-block"}}>

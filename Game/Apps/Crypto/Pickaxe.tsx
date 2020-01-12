@@ -65,7 +65,22 @@ export default class Pickaxe extends App<PickaxeEvents>{
     }
 
     public RemoveBoost(boostName: string): void{
-        throw "Not implemented"; //TODO
+        for(let i = this.allBoosts.length - 1; i >= 0; i--)
+        {
+            const boost = this.allBoosts[i];
+            if(boost.name === boostName){
+                if(boost.coinAdds){
+                    this.coinAmtAdd -= boost.coinAdds;
+                }
+
+                if(boost.coinMults){
+                    this.coinAmtMult -= boost.coinMults;
+                }
+                this.allBoosts.splice(i, 1);
+                this.UpdateLabels();
+                break;
+            }
+        }
     }
 
     public AddBoost(boost: PickaxeBoostItem): void{

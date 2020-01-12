@@ -195,8 +195,13 @@ export abstract class ShopPage extends VirtualPage implements IHasSaveData{
             }
         }
     }
+    
+    public AfterStateLoaded(): void {
+        for(let item of this.allItems){
+            item.AfterStateLoaded();
+        }
+    }
 
-    public AfterStateLoaded(): void { }
     public RestoreState(): void{ }
 
     protected abstract PopulateItems(): void; 
