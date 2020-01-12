@@ -16,12 +16,13 @@ import Browser from "../Browser/WebBrowser";
 import GA from "../../Core/GA";
 import { IHasSaveData } from "../../OS/StateController";
 
-export interface BoostItem{
+export interface MinerBoostItem{
     blockMultiplier?: number;
     blockBoost?: number;
     speedBoost?: number;
     symbol?: string;
     name: string;
+    //TODO add level property so it can be displayed in bonus list?
 }
 
 interface MinerOptions{
@@ -40,10 +41,13 @@ interface MinerEvents{
 export default class Miner extends App<MinerEvents>{
 
     public static AmtMinersByTitle: {[title: string]: number} = {};
-    public static BonusesBySymbol: {[symbol: string]: BoostItem[]} = {};
-    public static AllBoosts: BoostItem[] = [];
+    public static BonusesBySymbol: {[symbol: string]: MinerBoostItem[]} = {};
+    public static AllBoosts: MinerBoostItem[] = [];
 
-    public static AddBonus(item: BoostItem){
+    public static AddBonus(item: MinerBoostItem){
+        if(!item){
+            return;
+        }
         this.AllBoosts.push(item);
         this.BonusesBySymbol[item.symbol] = this.BonusesBySymbol[item.symbol] || [];
         this.BonusesBySymbol[item.symbol].push(item);
@@ -454,7 +458,7 @@ class BonusDetails extends Widget<BonusDetailsOptions, BonusDetailsEvents>{
 
     }
 
-    private GetBonusEle(item: BoostItem): HTMLDivElement{
+    private GetBonusEle(item: MinerBoostItem): HTMLDivElement{
         let icon: IconDescriptor;
         let title: string;
         let effect: string;

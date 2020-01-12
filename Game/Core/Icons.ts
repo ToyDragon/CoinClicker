@@ -124,4 +124,6 @@ export let AllIcons = {
     "AlphaExchange": CreateStandardIcon("AlphaExchange", {veryLarge: true}),
     "Browser": CreateStandardIcon("Browser"),
     "AlphaCoin": CreateStandardIcon("AlphaCoin", {veryLarge: true}),
+    "AlphaWolf": CreateStandardIcon("AlphaWolf", {veryLarge: true}),
+    "Mojave": CreateStandardIcon("Mojave", {veryLarge: true}),
 };

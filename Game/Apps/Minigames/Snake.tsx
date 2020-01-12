@@ -1,7 +1,7 @@
 import App from "../App";
 import WebosWindow from "../../OS/Window";
 import { AllIcons } from "../../Core/Icons";
-import Miner, { BoostItem } from "../Crypto/Miner";
+import Miner, { MinerBoostItem } from "../Crypto/Miner";
 import GA from "../../Core/GA";
 import { OS } from "../../OS/OS";
 import { IHasSaveData } from "../../OS/StateController";
@@ -63,7 +63,7 @@ export default class Snake extends App<{}> implements IHasSaveData{
 
     private static maxApples: number = 40;
     private static maxBoost: number = 0.5;
-    private static playingBonus: BoostItem = {
+    private static playingBonus: MinerBoostItem = {
         speedBoost: 1.25,
         name: "Snake Speed",
         symbol: "ACN"

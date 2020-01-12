@@ -6,6 +6,7 @@ interface LoadingBarOptions{
     totalDuration?: number;
     triggerPoints?: TriggerPoint[];
     noAutoStart?: boolean;
+    style?: React.CSSProperties;
 }
 
 export interface TriggerPoint{
@@ -44,7 +45,7 @@ export default class LoadingBarWidget extends Widget<LoadingBarOptions, {}>{
         }
         
         return (
-            <div className="loadingBar boarderRidge">
+            <div className="loadingBar boarderRidge" style={this.options.style}>
                 <div className="blueBar" style={{right: "100%"}} ref={this.blueBar}></div>
                 {spars}
             </div>

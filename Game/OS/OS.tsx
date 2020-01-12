@@ -15,6 +15,7 @@ import App from "../Apps/App";
 import StateController from "./StateController";
 import Miner from "../Apps/Crypto/Miner";
 import { SettingsApp } from "../Apps/General/Settings";
+import { PrivacyApp } from "../Apps/General/Privacy";
 
 /* Base class for all shared data keys just to help restrict the intellisense */
 export interface SharedDataKeys{
@@ -31,6 +32,7 @@ export class OS{
 	public static AboutApp: AboutApp;
 	public static StateController: StateController;
 	public static SettingsApp: SettingsApp;
+	public static PrivacyApp: PrivacyApp;
 
 	private static SharedData: {[value: string]: any} = {};
 	public static SharedDataEventHandlers: {[key: string]: Function[]} = {};
@@ -208,6 +210,13 @@ export class OS{
 			app: OS.AboutApp
 		}));
 
+		OS.PrivacyApp = new PrivacyApp();
+		metaFolder.AddItem(new FolderItem({
+			title: "Privacy",
+			icon: AllIcons.Frog,
+			app: OS.PrivacyApp
+		}));
+
 		OS.SettingsApp = new SettingsApp();
 		metaFolder.AddItem(new FolderItem({
 			title: "Settings",
@@ -322,6 +331,11 @@ export class OS{
 				title: "About",
 				icon: AllIcons.Frog,
 				app: OS.AboutApp
+			},
+			{
+				title: "Privacy",
+				icon: AllIcons.Frog,
+				app: OS.PrivacyApp
 			}
 			/*{
 				divider: true

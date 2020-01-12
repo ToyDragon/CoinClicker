@@ -22,7 +22,7 @@ interface PickaxeOptions{
 }
 
 
-export interface BoostItem{
+export interface PickaxeBoostItem{
     clickReduction?: number;
     coinAdds?: number;
     coinMults?: number;
@@ -40,7 +40,7 @@ export default class Pickaxe extends App<PickaxeEvents>{
     private coinAmtAdd: number;
     private coinAmtMult: number;
 
-    private allBoosts: BoostItem[] = [];
+    private allBoosts: PickaxeBoostItem[] = [];
     private displayedBonuses: {[name: string]: boolean} = {};
 
     private lblBaseValue: React.RefObject<LabelWidget>;
@@ -64,7 +64,14 @@ export default class Pickaxe extends App<PickaxeEvents>{
         this.coinAmtMult = 1;
     }
 
-    public AddBoost(boost: BoostItem): void{
+    public RemoveBoost(boostName: string): void{
+        throw "Not implemented"; //TODO
+    }
+
+    public AddBoost(boost: PickaxeBoostItem): void{
+        if(!boost){
+            return;
+        }
         if(boost.coinAdds){
             this.coinAmtAdd += boost.coinAdds;
         }
@@ -129,7 +136,7 @@ export default class Pickaxe extends App<PickaxeEvents>{
         }
     }
 
-    private GetBonusEle(item: BoostItem): HTMLDivElement{
+    private GetBonusEle(item: PickaxeBoostItem): HTMLDivElement{
         const div = document.createElement("div");
         ReactDom.render([
             <div key={1} style={{display:"inline-block"}}>

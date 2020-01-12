@@ -21,6 +21,12 @@ interface WalletEvents{
 }
 
 export class Wallet extends Observable<WalletEvents> implements IHasSaveData{
+
+    public static Symbol = {
+        ACN: "ACN",
+        CSH: "CSH"
+    };
+
     public static TryBuy<WalletData extends SharedDataKeys>(itemKey: keyof WalletData, amount: number, symbol: string): Promise<void>{
         return new Promise((resolve, reject) =>{
             if(OS.getSharedData(itemKey as string)){
