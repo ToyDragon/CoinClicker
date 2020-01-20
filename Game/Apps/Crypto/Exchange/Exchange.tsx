@@ -10,6 +10,7 @@ import TextInputWidget from "../../../OS/Widgets/TextInput";
 import SliderWidget from "../../../OS/Widgets/Slider";
 import { OS } from "../../../OS/OS";
 import { TradeTab } from "./TradeTab";
+import { SellTab } from "./SellTab";
 import { MojaveSharedDataKeys } from "../../Browser/VirtualPages/Mojave";
 import GA from "../../../Core/GA";
 import { IHasSaveData } from "../../../OS/StateController";
@@ -114,8 +115,10 @@ export default class Exchange extends App<Events> implements IHasSaveData{
     private autoSellEventQty: number = 0;
 
     private divBuyOrderTab: React.RefObject<HTMLDivElement>;
+    private divTradeTab: React.RefObject<HTMLDivElement>;
     private divSellOrderTab: React.RefObject<HTMLDivElement>;
     private tradeTab: React.RefObject<TradeTab>;
+    private sellTab: React.RefObject<SellTab>;
 
     public nState = {
         buyOrder: null as BuySellOrder,
@@ -206,6 +209,10 @@ export default class Exchange extends App<Events> implements IHasSaveData{
                 }
             });
         }
+    }
+
+    public GetRate(): number{
+        return this.nState.rate;
     }
 
     private AutoSell(): void{
@@ -447,6 +454,7 @@ export default class Exchange extends App<Events> implements IHasSaveData{
     }
 
     private updateVisibleSections(): void{
+        this.divTradeTab.current.classList.add("nodisp"); //TODO: perma-disabled the trade tab
         if(this.tradeTab.current.getAutoSellEnabled()){
             this.divBuyOrderTab.current.classList.add("nodisp");
             this.divSellOrderTab.current.classList.add("nodisp");
@@ -567,11 +575,15 @@ export default class Exchange extends App<Events> implements IHasSaveData{
                     </div>
                     <div ref={tabstripRef} className="tabSection">
                         <div className="tabstrip">
-                            <div className="tab active" data-tabname="Trade">Trade</div>
+                            <div className="tab active" data-tabname="Sell">Sell</div>
+                            <div className="tab" data-tabname="Trade" ref={this.divTradeTab = React.createRef<HTMLDivElement>()}>Trade</div>
                             <div className="tab" data-tabname="BuyOrder" ref={this.divBuyOrderTab = React.createRef<HTMLDivElement>()}>Buy Order</div>
                             <div className="tab" data-tabname="SellOrder" ref={this.divSellOrderTab = React.createRef<HTMLDivElement>()}>Sell Order</div>
                         </div>
                         <div className="tabContent" data-tabname="Trade" ref={tradeDivRef}>
+                            <SellTab symbol="ACN" exchange={this} ref={this.sellTab = React.createRef<SellTab>()} />
+                        </div>
+                        <div className="tabContent nodisp" data-tabname="Trade" ref={tradeDivRef}>
                             <TradeTab symbol="ACN" exchange={this} ref={this.tradeTab = React.createRef<TradeTab>()} />
                         </div>
                         <div className="tabContent nodisp" data-tabname="BuyOrder" ref={buyOrdersDivRef}>

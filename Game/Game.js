@@ -2,10 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const OS_1 = require("./OS/OS");
 const GA_1 = require("./Core/GA");
+const Utils_1 = require("./Core/Utils");
 $(document).ready(() => {
     let root = document.getElementById("main");
     OS_1.OS.init(root);
 });
+window.OS = OS_1.OS;
+window.Utils = Utils_1.default;
 const scriptEle = document.createElement("script");
 scriptEle.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_1.default.GAID;
 scriptEle.onerror = () => {

@@ -1,11 +1,14 @@
 import { OS } from "./OS/OS";
 import GA from "./Core/GA";
+import Utils from "./Core/Utils";
 
 $(document).ready(() => {
     let root = document.getElementById("main");
     OS.init(root);
 });
 
+(window as any).OS = OS;
+(window as any).Utils = Utils;
 
 declare global{
     interface Window{

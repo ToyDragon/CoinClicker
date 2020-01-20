@@ -11,8 +11,14 @@ import GA from "../../Core/GA";
 import IconWidget from "../../OS/Widgets/Icon";
 import VirtualPage from "./VirtualPages/VirtualPage";
 import { IHasSaveData } from "../../OS/StateController";
+import Observable from "../../Core/Observable";
 
-export abstract class ShopItem{
+interface ShopEvents{
+    levelchanged;
+    maxlevelreached;
+}
+
+export abstract class ShopItem extends Observable<ShopEvents>{
 
     public itemBar: React.RefObject<LoadingBarWidget>;
     public priceDiv: React.RefObject<HTMLDivElement>;
@@ -29,6 +35,7 @@ export abstract class ShopItem{
     protected icon: IconDescriptor;
 
     protected constructor(){
+        super();
         this.level = 0;
     }
 
@@ -74,6 +81,11 @@ export abstract class ShopItem{
         if(pickBoost){
             OS.PickaxeApp.RemoveBoost(pickBoost.name);
             OS.PickaxeApp.AddBoost(pickBoost);
+        }
+
+        this.trigger("levelchanged");
+        if(this.level === this.maxCount){
+            this.trigger("maxlevelreached");
         }
 
         this.AfterPurchaseComplete();
@@ -211,12 +223,14 @@ export abstract class ShopPage extends VirtualPage implements IHasSaveData{
     private icon: IconDescriptor;
     private backgroundColor: string;
     private hoverColor: string;
+    private textColor: string;
     private title: string;
     private subTitle: string;
 
-    public constructor(icon: IconDescriptor, title: string, subTitle: string, backgroundColor: string, hoverColor: string){
+    public constructor(icon: IconDescriptor, title: string, subTitle: string, backgroundColor: string, hoverColor: string, textColor?: string){
         super();
 
+        this.textColor = textColor || "black";
         this.icon = icon;
         this.backgroundColor = backgroundColor;
         this.hoverColor = hoverColor;
@@ -249,6 +263,7 @@ export abstract class ShopPage extends VirtualPage implements IHasSaveData{
                 
                 .pageRoot{
                     background-color: ` + this.backgroundColor + `;
+                    color: ` + this.textColor + `;
                 }
                 
                 .shopItems{

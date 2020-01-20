@@ -1,6 +1,5 @@
 import Widget from "./Widget";
-import { AssetLocation } from "../../Core/Utils";
-import { IconDescriptor, AllIcons } from "../../Core/Icons";
+import { AllIcons } from "../../Core/Icons";
 import SelectionList, { SelectionListOptions } from "./SelectionList";
 import ContextMenu from "../ContextMenu"
 import IconWidget from "./Icon";

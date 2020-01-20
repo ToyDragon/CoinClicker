@@ -11,6 +11,7 @@ import ContextMenu from "./ContextMenu";
 import Taskbar from "./Taskbar";
 import { EmailApp } from "../Apps/General/Email";
 import { AboutApp } from "../Apps/General/About";
+import { MusicPlayerApp } from "../Apps/General/MusicPlayer";
 import App from "../Apps/App";
 import StateController from "./StateController";
 import Miner from "../Apps/Crypto/Miner";

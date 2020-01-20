@@ -58,7 +58,7 @@ class MinerShopItem extends ShopItem{
             title: title,
             icon: AllIcons.ComputerBoard,
             symbol: "ACN",
-            block: this.tier+1
+            block: Math.pow(10,this.tier+1)
         });
         OS.CreateDesktopItem({
             title: title,
@@ -156,28 +156,24 @@ export default class MojavePage extends ShopPage{
         return "Mojave";
     }
 
-    
-    public AfterStateLoaded(): void {
-        for(let item of this.allItems){
-            item.AfterStateLoaded();
-        }
-    }
-
     public constructor(){
         super(AllIcons.Mojave, "Mojave.com", "Your one stop shop for crypto currency tools.", "#b38418", "#d1b470");
     }
 
     protected PopulateItems(): void{
-        this.allItems.push(new MinerShopItem("Always Allot Alpha", 20, Wallet.Symbol.ACN, 0, "hasACNMiner0"));
         this.allItems.push(new MojaveExchangeItem());
-        this.allItems.push(new MojaveOneoffItem("ACN Purchasing", "Buy Alpha Coins", AllIcons.AlphaExchange, 1999, Wallet.Symbol.CSH, "exchange_buy", "hasACNBuy"));
-        this.allItems.push(new MojaveOneoffItem("ACN Selling", "Sell Alpha Coins", AllIcons.AlphaExchange, 2499, Wallet.Symbol.CSH, "exchange_sell", "hasACNAdvancedSell"));
-        this.allItems.push(new MojaveOneoffItem("ACN Buy Orders", "Auto-buy at specified prices", AllIcons.AlphaExchange, 9999, Wallet.Symbol.CSH, "exchange_buy_orders", "hasACNBuyOrders"));
-        this.allItems.push(new MojaveOneoffItem("ACN Sell Orders", "Auto-sell at specified prices", AllIcons.AlphaExchange, 19999, Wallet.Symbol.CSH, "exchange_sell_orders", "hasACNSellOrders"));
-        this.allItems.push(new MinerShopItem("Alliteration Always Advances", 100 * Math.pow(15, 2), Wallet.Symbol.ACN, 1, "hasACNMiner1"));
-        this.allItems.push(new MinerShopItem("Angry Angsty Awfuls", 100 * Math.pow(15, 4), Wallet.Symbol.ACN, 2, "hasACNMiner2"));
-        this.allItems.push(new MinerShopItem("Apples Aid All Ailments", 100 * Math.pow(15, 6), Wallet.Symbol.ACN, 3, "hasACNMiner3"));
-        this.allItems.push(new MinerShopItem("Another Altruistic Action", 100 * Math.pow(15, 8), Wallet.Symbol.ACN, 4, "hasACNMiner4"));
+        this.allItems.push(new MinerShopItem("Always Allot Alpha", 6000, Wallet.Symbol.CSH, 0, "hasACNMiner0"));
+        this.allItems.push(new MinerShopItem("Alliteration Always Advances", 10000 * Math.pow(15, 2), Wallet.Symbol.CSH, 1, "hasACNMiner1"));
+        this.allItems.push(new MinerShopItem("Angry Angsty Awfuls", 10000 * Math.pow(15, 4), Wallet.Symbol.CSH, 2, "hasACNMiner2"));
+        this.allItems.push(new MinerShopItem("Apples Aid All Ailments", 10000 * Math.pow(15, 6), Wallet.Symbol.CSH, 3, "hasACNMiner3"));
+        this.allItems.push(new MinerShopItem("Another Altruistic Action", 10000 * Math.pow(15, 8), Wallet.Symbol.CSH, 4, "hasACNMiner4"));
+
+
+        
+        // this.allItems.push(new MojaveOneoffItem("ACN Purchasing", "Buy Alpha Coins", AllIcons.AlphaExchange, 1999, Wallet.Symbol.CSH, "exchange_buy", "hasACNBuy"));
+        // this.allItems.push(new MojaveOneoffItem("ACN Selling", "Sell Alpha Coins", AllIcons.AlphaExchange, 2499, Wallet.Symbol.CSH, "exchange_sell", "hasACNAdvancedSell"));
+        // this.allItems.push(new MojaveOneoffItem("ACN Buy Orders", "Auto-buy at specified prices", AllIcons.AlphaExchange, 9999, Wallet.Symbol.CSH, "exchange_buy_orders", "hasACNBuyOrders"));
+        // this.allItems.push(new MojaveOneoffItem("ACN Sell Orders", "Auto-sell at specified prices", AllIcons.AlphaExchange, 19999, Wallet.Symbol.CSH, "exchange_sell_orders", "hasACNSellOrders"));
     }
 
     public GetURL(): string {

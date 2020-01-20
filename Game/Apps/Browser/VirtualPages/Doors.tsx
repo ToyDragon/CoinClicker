@@ -44,6 +44,8 @@ class PickaxeItem extends ShopItem{
 
 export default class DoorsPage extends ShopPage{
 
+    public firstUpgrade: PickaxeItem;
+
     public GetStateKey(): string {
         return "Doors";
     }
@@ -60,11 +62,12 @@ export default class DoorsPage extends ShopPage{
         super(AllIcons.Doors, "Doors.com", "Click-based mining upgrades.", "#b38418", "#d1b470");
     }
 
-    protected PopulateItems(): void{
-        this.allItems.push(new PickaxeItem("Cubic Bezier Curves", 650, 1, 0));
-        this.allItems.push(new PickaxeItem("Wheels on Case", 3500, 5, 1));
-        this.allItems.push(new PickaxeItem("LED Lights", 15000, 25, 2));
-        this.allItems.push(new PickaxeItem("Poptart Cat Song", 55000, 1, 3));
-        this.allItems.push(new PickaxeItem("Jet Engine", 145000, 600, 4));
+    protected PopulateItems(): void {
+        this.firstUpgrade = new PickaxeItem("Cubic Bezier Curves", 650, 1, 0); 
+        this.allItems.push(this.firstUpgrade);
+        this.allItems.push(new PickaxeItem("Wheels on Case", 15000, 5, 1));
+        this.allItems.push(new PickaxeItem("LED Lights", 55000, 25, 2));
+        this.allItems.push(new PickaxeItem("Poptart Cat Song", 145000, 125, 3));
+        this.allItems.push(new PickaxeItem("Jet Engine", 600000, 600, 4));
     }
 }

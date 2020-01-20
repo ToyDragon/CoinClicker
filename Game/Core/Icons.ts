@@ -112,6 +112,8 @@ export let AllIcons = {
     "ComputerBoardPower": CreateStandardIcon("ComputerBoardPower", {veryLarge: true}),
     "LayoutSquares": CreateStandardIcon("LayoutSquares", {veryLarge: true}),
     "LayoutSquaresDisabled": CreateStandardIcon("LayoutSquaresDisabled", {veryLarge: true}),
+    "Coal": CreateStandardIcon("Coal", {veryLarge: true}),
+    "Music": CreateStandardIcon("Music", {veryLarge: true}),
     "House": CreateStandardIcon("House", {veryLarge: true}),
     "Go": CreateStandardIcon("Go", {veryLarge: true}),
     "Snake": CreateStandardIcon("Snake", {veryLarge: true}),
@@ -127,4 +129,7 @@ export let AllIcons = {
     "AlphaWolf": CreateStandardIcon("AlphaWolf", {veryLarge: true}),
     "Mojave": CreateStandardIcon("Mojave", {veryLarge: true}),
     "Doors": CreateStandardIcon("Doors", {veryLarge: true}),
+    "Pause": CreateStandardIcon("Pause", {veryLarge: true}),
+    "Play": CreateStandardIcon("Play", {veryLarge: true}),
+    "Stop": CreateStandardIcon("Stop", {veryLarge: true}),
 };

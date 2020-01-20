@@ -77,7 +77,7 @@ export default class Utils{
 			return (Math.floor(number*100)/100) + "";
 		}
 		let digits = Math.floor(Math.log10(number)) + 1;
-        if(digits > 5 || digits < 0)
+        if(digits < 0)
         {
 			let rounded = number/Math.pow(10, digits - 1);
 			let disp = (Math.floor(rounded * 10) / 10).toString();
@@ -86,6 +86,17 @@ export default class Utils{
 				disp += ".0";
 			}
 			disp += "e" + (digits - 1);
+			return disp;
+		}
+		if(digits > 6){
+			let displayDigits = Math.floor((digits-1)/3)*3;
+			let rounded = number/Math.pow(10, displayDigits);
+			let disp = (Math.floor(rounded * 10) / 10).toString();
+            if(disp.length == "x".length || disp.length == "xx".length)
+            {
+				disp += ".0";
+			}
+			disp += "e" + displayDigits;
 			return disp;
 		}
 		if(digits > 3)

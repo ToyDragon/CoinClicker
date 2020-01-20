@@ -39,8 +39,13 @@ export default class LoadingBarWidget extends Widget<LoadingBarOptions, {}>{
     public render(): JSX.Element{
         this.blueBar = React.createRef<HTMLDivElement>();
         let spars: JSX.Element[] = [];
+
+        let sparCount = 10;
+        if(typeof(this.options.sparCount) != "undefined"){
+            sparCount = this.options.sparCount;
+        }
         
-        for(var i = 0; i < (this.options.sparCount || 10); i++){
+        for(var i = 0; i < sparCount; i++){
             spars.push(<div className="spar" key={i}></div>)
         }
         

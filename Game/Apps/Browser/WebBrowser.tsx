@@ -20,6 +20,8 @@ export default class Browser extends App<{}>{
     public prevtarget: string;
     public hist: string[];
     public addressField: TextInputWidget;
+    public Doors: DoorsPage;
+    public Coal: CoalPage;
 
     private availablePages: VirtualPage[];
     private activePage?: VirtualPage;
@@ -28,12 +30,14 @@ export default class Browser extends App<{}>{
     public constructor(){
         super();
 
+        this.Doors = new DoorsPage();
+        this.Coal = new CoalPage();
         this.availablePages = [
             new HomePage(),
             new AlphaWolfPage(),
             new MojavePage(),
-            new CoalPage(),
-            new DoorsPage()
+            this.Coal,
+            this.Doors
         ];
 
 		if(Utils.DebugEnabled()){

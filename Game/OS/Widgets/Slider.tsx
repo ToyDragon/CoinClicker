@@ -1,6 +1,7 @@
 import Widget from "./Widget";
 import * as React from "react";
 import Utils from "../../Core/Utils";
+import { runInThisContext } from "vm";
 
 interface SliderOptions{
     min: number;
@@ -9,6 +10,8 @@ interface SliderOptions{
     defaultValue?: number;
     label: string;
     tooltip?: string;
+    width?: number;
+    darkBar?: boolean;
 }
 
 interface Events{
@@ -67,10 +70,22 @@ export default class SliderWidget extends Widget<SliderOptions, Events>{
     public render(): JSX.Element{
         this.barRef = React.createRef<HTMLDivElement>();
         this.valueDisplayRef = React.createRef<HTMLSpanElement>();
+        const rootAddlOptions = {};
+        if(this.options.width){
+            rootAddlOptions["style"] = {
+                width: this.options.width
+            };
+        }
+        const barAddlOptions = {};
+        if(this.options.darkBar){
+            barAddlOptions["style"] = {
+                borderTop: "2px solid #818180"
+            }
+        }
         return (
-            <div className="slider" title={this.options.tooltip}>
+            <div className="slider" title={this.options.tooltip} {...rootAddlOptions}>
                 <div className="bar borderGroove" ref={this.barRef}></div>
-                <div className="horizontalbar"></div>
+                <div className="horizontalbar" {...barAddlOptions}></div>
                 <div className="valueDisplay"><span className="labelDisplay">{this.options.label}</span> <span ref={this.valueDisplayRef}></span></div>
             </div>
         );
@@ -103,14 +118,18 @@ export default class SliderWidget extends Widget<SliderOptions, Events>{
 
                 let percentage = newOffset / max;
                 this.value = percentage * (this.options.max - this.options.min) + this.options.min;
-                $(this.valueDisplayRef.current).text(Utils.DisplayNumber(this.value) + this.options.suffix);
+                if(this.options.suffix === "%"){
+                    $(this.valueDisplayRef.current).text(Math.round(this.value*100) + this.options.suffix);
+                }else{
+                    $(this.valueDisplayRef.current).text(Utils.DisplayNumber(this.value) + this.options.suffix);
+                }
                 this.CheckRange();
 
                 this.trigger("changed");
             }
         });
 
-        let max = 147; //lol shouldn't hard code this width
+        let max = this.options.width || 147; //lol shouldn't hard code this width
         let percentage = 0.5;
         if(this.options.defaultValue){
             percentage = this.options.defaultValue;
@@ -119,7 +138,11 @@ export default class SliderWidget extends Widget<SliderOptions, Events>{
         console.log("Start offset: " + percentage + " : " + newOffset);
         barEle.css("margin-left", newOffset + "px");
         this.value = percentage * (this.options.max - this.options.min) + this.options.min;
-        $(this.valueDisplayRef.current).text(Utils.DisplayNumber(this.value) + this.options.suffix);
+        if(this.options.suffix === "%"){
+            $(this.valueDisplayRef.current).text(Math.round(this.value*100) + this.options.suffix);
+        }else{
+            $(this.valueDisplayRef.current).text(Utils.DisplayNumber(this.value) + this.options.suffix);
+        }
         this.CheckRange();
     }
 }

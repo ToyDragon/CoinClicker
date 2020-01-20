@@ -324,7 +324,7 @@ export default class WebosWindow extends Observable<Events>{
 	
 	public static Init(): void{
 		let layoutElement = $(".item.layout > .icon");
-		WebosWindow.layoutMode = LayoutMode.Order;
+		WebosWindow.layoutMode = LayoutMode.Anarchy;
 
 		$(window).on("resize", () => {this.RepositionWindows();});
 

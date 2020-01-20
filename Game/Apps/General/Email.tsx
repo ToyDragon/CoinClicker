@@ -9,8 +9,6 @@ import LabelWidget from "../../OS/Widgets/Label";
 import IconWidget from "../../OS/Widgets/Icon";
 import { OS } from "../../OS/OS";
 import { Wallet } from "../Crypto/Wallet";
-import { MojaveSharedDataKeys } from "../Browser/VirtualPages/Mojave";
-import { CoalSharedDataKeys } from "../Browser/VirtualPages/Coal";
 import GA from "../../Core/GA";
 import { IHasSaveData } from "../../OS/StateController";
 
@@ -28,7 +26,7 @@ interface Email{
 const EmailData = {
     "Welcome": (
         <div>
-            Welcome to Coin Clicker! This is a game about mining and trading fake
+            Welcome to Coin Clicker! This is a game about mining and fake
             crypto currencies like Alpha Coin (ACN) to make Cash (CSH). Check out
             your other emails for help getting started, and consider joining
             the <a href="https://discord.gg/yADAGd8" target="_blank">discord</a>.
@@ -36,11 +34,15 @@ const EmailData = {
     ),
     "Starting Out": (
         <div>
-            You can start mining Alpha Coin right away by clicking the "Alpha Pickaxe" app
-            on your desktop. Click the button or press space bar to charge the bar,
-            and when it fills up you will mine a block of Alpha Coin. You'll start by
-            getting one Alpha Coin per block you mine, once you sell your Alpha Coins for
-            Cash you can purchase bonuses and multipliers from <a href="#" data-destination="doors.com">www.doors.com</a> to mine faster.
+            <p style={{marginTop: 0}}>
+                You can start mining Alpha Coin right away by clicking the "Alpha Pickaxe" app
+                on your desktop. Click the button or press space bar to charge the bar,
+                and when it fills up you will mine a block of Alpha Coin.
+            </p>
+            <p>
+                You can track how much ACN or CSH you have in your wallet. Look for the Wallet app
+                on your desktop, or click the wallet icon in your taskbar on the very bottom right of the screen.
+            </p>
         </div>
     ),
     "Adblock": (
@@ -59,49 +61,56 @@ const EmailData = {
                 Now that you've got some ACN you can sell it at the Exchange for CSH. Open
                 your the browser app on your desktop, navigate
                 to <a href="#" data-destination="mojave.com">www.mojave.com</a>, and buy
-                access to the Exchange app. While the Exchange app is open it will
-                automatically trade your ACN for CSH at the current market price.
+                access to the Exchange app. You can use the Exchange app to sell your ACN
+                for CSH at the current going rate.
             </div>
             <div>
-                TODO: image of exchange
+                <img src="Assets/exchange.png" style={{width:"266px"}}/>
             </div>
             <div>
-                The Exchange app contains three sections, the top graph section shows you how
-                the price has changed over the last 10 minutes. The bottom left section shows
-                info about the going rate of ACN. The current rate is the amount of
-                CSH you will get per ACN sold right now. The average rate let's you know if
-                you're currently getting a good deal or not. The min and max rates are the
-                lowest and highest the rate has been in the last 10 minutes.
+                <p>
+                    A: The top graph section shows you how the price has changed over the last 10 minutes.
+                </p>
+                <p>
+                    B: The bottom left section shows info about the going rate of ACN. The current rate is
+                    the amount of CSH you will get per ACN sold right now. The average rate let's you know if
+                    you're currently getting a good deal or not. The min and max rates are the
+                    lowest and highest the rate has been in the last 10 minutes.
+                </p>
+                <p>
+                    C: The bottom right section has buttons to sell all of your ACN for CSH, or if you just
+                    need to top off you can sell 10% of your ACN for CSH.
+                </p>
             </div>
         </div>
     ),
     "Auto-Miners": (
         <div>
-            Auto-Miners will save you a lot of effort if you invest in them. They only mine
-            while open, so make sure you keep them open all the time. Purchase upgrades for your miners 
-            at  <a href="#" data-destination="alphawolf.org">www.alphawolf.org</a>. Upgrades
+            Auto-Miners can mine ACN without having click any pesky buttons. Purchase an auto-miner
+            at <a href="#" data-destination="mojave.com">www.mojave.com</a>, and upgrades 
+            at <a href="#" data-destination="alphawolf.org">www.alphawolf.org</a>. Upgrades
             can increase base block size, multiply total block size, decrease block duration,
             and divide total block duration. Combining all of these upgrades will lead to serious income!
         </div>
     ),
-    "Trading": (
-        <div>
-            Trading crypto currency can be extremely profitable if you take advantage of the
-            advanced buy and sell features of the Exchange. Consider turning off auto-sell,
-            and selling when the rate is high. If you're saving up for an expensive upgrade
-            you can buy ACN while it's cheap, and flip it later for a profit.
-        </div>
-    ),
-    "Orders": (
-        <div>
-            Exchange orders are a way to automatically buy ACN when the price drops low enough,
-            or to automatically sell when it gets high enough. Use the slider in the top of the
-            order tab to choose the rate to wait for, and use the fields below to choose the
-            quantity. For buy orders the CSH well be held until the order is satisfied, or you
-            cancel the order. Similarly for sell orders the ACN will be held until the order
-            is complete or cancelled.
-        </div>
-    ),
+    // "Trading": (
+    //     <div>
+    //         Trading crypto currency can be extremely profitable if you take advantage of the
+    //         advanced buy and sell features of the Exchange. Consider turning off auto-sell,
+    //         and selling when the rate is high. If you're saving up for an expensive upgrade
+    //         you can buy ACN while it's cheap, and flip it later for a profit.
+    //     </div>
+    // ),
+    // "Orders": (
+    //     <div>
+    //         Exchange orders are a way to automatically buy ACN when the price drops low enough,
+    //         or to automatically sell when it gets high enough. Use the slider in the top of the
+    //         order tab to choose the rate to wait for, and use the fields below to choose the
+    //         quantity. For buy orders the CSH well be held until the order is satisfied, or you
+    //         cancel the order. Similarly for sell orders the ACN will be held until the order
+    //         is complete or cancelled.
+    //     </div>
+    // ),
     "Doug": (
         <div>
             Doug is a game about mining resources, and selling them for profit! Control Doug
@@ -121,23 +130,28 @@ const EmailData = {
             high score will permanently add bonus coins to every mined block!
         </div>
     ),
+    "Music": (
+        <div>
+            TODO: write info about the music player, and link to Corey's social media. 
+        </div>
+    ),
     "Online Stores": (
         <div>
-            <div>
+            <p style={{marginTop: 0}}>
                 There are various online stores where you can spend money to increase your rate of progression. 
-            </div>
-            <div>
-                <a href="#" data-destination="mojave.com">www.mojave.com</a> sells automatic ACN miner applications, and Exchange upgrades.
-            </div>
-            <div>
+            </p>
+            <p>
                 <a href="#" data-destination="doors.com">www.doors.com</a> sells upgrades for your Pickaxe app, so you can mine ACN coins faster.
-            </div>
-            <div>
+            </p>
+            <p>
+                <a href="#" data-destination="mojave.com">www.mojave.com</a> sells automatic ACN miner applications.
+            </p>
+            <p>
                 <a href="#" data-destination="alphawolf.org">www.alphawolf.org</a> sells upgrades for your automatic miner apps.
-            </div>
-            <div>
+            </p>
+            <p>
                 <a href="#" data-destination="coal.io">www.coal.io</a> sells minigames that are great for killing time, and also boost the effectiveness of your automatic miners!
-            </div>
+            </p>
         </div>
     ),
 };
@@ -166,6 +180,9 @@ export class EmailApp extends App<{}> implements IHasSaveData{
                 this.AddEmailCore(subject as keyof typeof EmailData, true);
             }
         }
+
+        this.AddEmail("Welcome");
+        this.AddEmail("Starting Out");
     }
 
     private allEmails: Email[];
@@ -183,20 +200,36 @@ export class EmailApp extends App<{}> implements IHasSaveData{
 
         this.allEmails = [];
 
-        this.AddEmail("Welcome");
-        this.AddEmail("Starting Out");
-
         Wallet.AllWallets["ACN"].on("afterChangeValue", () => {
             if(Wallet.AllWallets["ACN"].GetAmount() >= 5){
                 this.AddEmail("Making Cash");
             }
         });
 
-        OS.on<MojaveSharedDataKeys>("hasACNMiner0", () => { this.AddEmail("Auto-Miners"); });
-        OS.on<MojaveSharedDataKeys>("hasACNBuy", () => { this.AddEmail("Trading"); });
-        OS.on<MojaveSharedDataKeys>("hasACNBuyOrders", () => { this.AddEmail("Orders"); });
-        OS.on<CoalSharedDataKeys>("hasDigger", () => { this.AddEmail("Doug"); });
-        OS.on<CoalSharedDataKeys>("hasSnake", () => { this.AddEmail("Snake"); });
+        //OS.on<MojaveSharedDataKeys>("hasACNMiner0", () => { this.AddEmail("Auto-Miners"); });
+        //OS.on<MojaveSharedDataKeys>("hasACNBuy", () => { this.AddEmail("Trading"); });
+        //OS.on<MojaveSharedDataKeys>("hasACNBuyOrders", () => { this.AddEmail("Orders"); });
+
+        OS.BrowserApp.Coal.dougItem.on("maxlevelreached", () => {
+            this.AddEmail("Doug");
+        });
+        if(OS.BrowserApp.Coal.dougItem.GetLevel() === OS.BrowserApp.Coal.dougItem.GetMaxCount()){
+            this.AddEmail("Doug");
+        }
+
+        OS.BrowserApp.Coal.snakeItem.on("maxlevelreached", () => {
+            this.AddEmail("Snake");
+        });
+        if(OS.BrowserApp.Coal.snakeItem.GetLevel() === OS.BrowserApp.Coal.snakeItem.GetMaxCount()){
+            this.AddEmail("Snake");
+        }
+
+        OS.BrowserApp.Coal.musicItem.on("maxlevelreached", () => {
+            this.AddEmail("Music");
+        });
+        if(OS.BrowserApp.Coal.musicItem.GetLevel() === OS.BrowserApp.Coal.musicItem.GetMaxCount()){
+            this.AddEmail("Music");
+        }
 
         Wallet.AllWallets["CSH"].on("afterChangeValue", () => {
             if(Wallet.AllWallets["CSH"].GetAmount() >= 100){
@@ -214,6 +247,13 @@ export class EmailApp extends App<{}> implements IHasSaveData{
                 }
             }
         });
+
+        OS.BrowserApp.Doors.firstUpgrade.on("maxlevelreached", () => {
+            this.AddEmail("Auto-Miners");
+        });
+        if(OS.BrowserApp.Doors.firstUpgrade.GetLevel() == OS.BrowserApp.Doors.firstUpgrade.GetMaxCount()){
+            this.AddEmail("Auto-Miners");
+        }
         
         OS.StateController.AddTrackedObject(this);
     }
@@ -230,13 +270,11 @@ export class EmailApp extends App<{}> implements IHasSaveData{
         if(this.sState.shownEmails[subject]){
             return;
         }
-        if(this.sState.shownEmails[subject]){
-            return;
-        }
-        this.sState.shownEmails[subject] = "1";
+        this.AddEmailCore(subject, silent);
     }
 
     public AddEmailCore(subject: keyof typeof EmailData, silent?: boolean): void{
+        this.sState.shownEmails[subject] = "1";
         let content = EmailData[subject];
         const email = {
             subject: subject,
@@ -359,6 +397,7 @@ export class EmailApp extends App<{}> implements IHasSaveData{
                 e.preventDefault();
             }
         });
+        $(this.emailContent).scrollTop(0);
         this.UpdateEmailTaskbarButton();
     }
     

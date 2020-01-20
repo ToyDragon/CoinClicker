@@ -14,7 +14,7 @@ class BlockBoostItem extends ShopItem{
         this.blockIncrement = blockIncrement;
         this.subtitle = "+" + Utils.DisplayNumber(blockIncrement) + " Block Size";
         this.icon = AllIcons.ComputerBoardPower;
-        this.symbol = Wallet.Symbol.ACN;
+        this.symbol = Wallet.Symbol.CSH;
         this.upgradeKey = "BlockBoost_"+id;
         this.maxCount = 10;
     }
@@ -45,7 +45,7 @@ class BlockSpeedItem extends ShopItem{
         this.speedIncrement = speedIncrement;
         this.subtitle = "+" + Utils.DisplayNumber(speedIncrement*100) + "% Mining Speed";
         this.icon = AllIcons.ComputerBoardSpeed;
-        this.symbol = Wallet.Symbol.ACN;
+        this.symbol = Wallet.Symbol.CSH;
         this.upgradeKey = "SpeedBoost_"+id;
         this.maxCount = 3;
     }
@@ -78,14 +78,14 @@ export default class AlphaWolfPage extends ShopPage{
     }
 
     protected PopulateItems(): void{
-        this.allItems.push(new BlockBoostItem("Transaction Compression", 5, 1, 1));
-        this.allItems.push(new BlockSpeedItem("+0.5 Voltage Boost", 10, 0.10, 1));
-        this.allItems.push(new BlockBoostItem("Complex Hashing", 20, 5, 2));
-        this.allItems.push(new BlockSpeedItem("Larger Transitors", 100, 0.20, 2));
-        this.allItems.push(new BlockBoostItem("Transaction Grouping", 500, 20, 3));
-        this.allItems.push(new BlockSpeedItem("Smaller Transitors", 1000, 0.30, 3));
-        this.allItems.push(new BlockBoostItem("More GPU RAM", 1500, 300, 4));
-        this.allItems.push(new BlockSpeedItem("RAM Disk Pagefile", 3000, 0.40, 3));
+        this.allItems.push(new BlockBoostItem("Transaction Compression", 15000, 10, 1));
+        this.allItems.push(new BlockSpeedItem("+0.5 Voltage Boost", 45000, 0.10, 1));
+        this.allItems.push(new BlockBoostItem("Complex Hashing", 100000, 50, 2));
+        this.allItems.push(new BlockSpeedItem("Larger Transitors", 225000, 0.20, 2));
+        this.allItems.push(new BlockBoostItem("Transaction Grouping", 475000, 200, 3));
+        this.allItems.push(new BlockSpeedItem("Smaller Transitors", 999000, 0.30, 3));
+        this.allItems.push(new BlockBoostItem("More GPU RAM", 1800000, 300, 4));
+        this.allItems.push(new BlockSpeedItem("RAM Disk Pagefile", 3100000, 0.40, 3));
 
         // let boostNames = [
         //     "Transaction Compression",

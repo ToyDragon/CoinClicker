@@ -133,7 +133,8 @@ export class TradeTab extends ObservableComponent<TradeTabEvents, TradeTabProps>
     }
 
     public getAutoSellEnabled(): boolean{
-        return this.props.exchange.sState.autosellEnabled == "1";
+        return false;
+        //return this.props.exchange.sState.autosellEnabled == "1"; //TODO perma disabled auto-sell
     }
 
     public setAutoSellEnabled(enabled: boolean): void{
