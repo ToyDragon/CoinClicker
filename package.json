@@ -27,7 +27,7 @@
     "@types/node": "^10.17.6",
     "ts-loader": "^5.4.5",
     "typescript": "^3.7.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.12"
   },
   "scripts": {
     "test": "mocha $(find bin/Test -name '*.js')",
